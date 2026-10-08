@@ -3,26 +3,87 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>mappin - 投稿</title>
+  <title>mappin - 投稿を作成</title>
   <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+  <style>
+    .profile-row { display: flex; gap: 12px; align-items: flex-start; }
+    .avatar { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 50%; color: #fff; background: #3786e8; font-weight: 700; }
+    .identity { margin: 2px 0 10px; }
+    .identity strong { display: block; }
+    .identity span { color: #777; font-size: 13px; }
+    .post-input { min-height: 126px; border: 0; padding: 0; outline: 0; font-size: 17px; }
+    .post-input:focus { border: 0; }
+    .reply-setting { display: inline-block; margin-top: 8px; padding: 6px 10px; border: 1px solid #b9d5f5; border-radius: 5px; color: #2868ae; background: #f1f7ff; font-size: 12px; }
+    .media-preview { position: relative; display: none; margin-top: 12px; }
+    .media-preview.visible { display: block; }
+    .media-preview img { display: block; width: 100%; max-height: 280px; object-fit: cover; border: 1px solid #ddd; border-radius: 5px; }
+    .remove-media, .remove-location { border: 0; background: transparent; cursor: pointer; }
+    .remove-media { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; color: #fff; background: #222c; font-size: 20px; }
+    .tool-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #ddd; }
+    .tool-button { display: grid; width: 38px; height: 38px; place-items: center; border: 0; border-radius: 5px; color: #2868ae; background: #f1f7ff; cursor: pointer; }
+    .tool-button input { display: none; }
+    .tool-image { font-size: 20px; line-height: 1; }
+    .tool-image::before { content: "▧"; }
+    .location-button { width: auto; padding: 0 10px; gap: 5px; font-size: 12px; }
+    .location-button:disabled { cursor: wait; opacity: .65; }
+    .counter { margin-left: auto; color: #777; font-size: 12px; }
+    .counter.warning { color: #b66a00; }
+    .counter.error { color: #c22; font-weight: 700; }
+    .post-button { min-height: 38px; margin-left: 4px; padding: 0 16px; border: 1px solid #222; border-radius: 5px; color: #fff; background: #222; font-weight: 700; }
+    .post-button:disabled { cursor: not-allowed; opacity: .45; }
+    .location-card { display: none; align-items: center; gap: 10px; margin-top: 12px; padding: 11px 12px; border: 1px solid #c9ebdc; border-radius: 5px; color: #176b53; background: #f0fbf6; }
+    .location-card.visible { display: flex; }
+    .location-copy { min-width: 0; flex: 1; }
+    .location-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 700; }
+    .location-coordinates { margin-top: 2px; color: #5b897a; font-size: 10px; }
+    .floor-select { padding: 6px; border: 1px solid #a9d9c7; border-radius: 5px; color: #176b53; background: #fff; font-size: 11px; }
+    .remove-location { width: 26px; height: 26px; color: #176b53; font-size: 18px; }
+    .toast { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }
+  </style>
 </head>
-<body data-page="post">
+<body>
   <div class="app">
     <header>mappin</header>
     <main>
-      <h1 class="page-title">投稿</h1>
-      <form id="post-form">
-        <label class="field-label" for="post-text">いまの様子をシェア</label>
-        <textarea id="post-text" maxlength="280" placeholder="近くの出来事や発見を投稿..."></textarea>
-        <div class="location-row">
-          <span>📍 現在地にピンを立てる</span>
-          <span class="location-state" id="location-state">オン</span>
+      <h1 class="page-title">投稿を作成</h1>
+      <section class="card" aria-label="投稿フォーム">
+        <div class="profile-row">
+          <div class="avatar" aria-hidden="true">Y</div>
+          <div style="flex: 1">
+            <div class="identity"><strong>Yuki Tanaka</strong><span>@yuki_design</span></div>
+            <textarea id="postInput" class="post-input" maxlength="280" placeholder="今どこにいる？" autofocus></textarea>
+            <div class="reply-setting">◉ 全員が返信できます</div>
+          </div>
         </div>
-        <button class="secondary wide" id="location-toggle" type="button" aria-pressed="true">位置情報をオフにする</button>
-        <button class="primary wide" type="submit">投稿する</button>
-        <p class="notice" id="post-notice" role="status" aria-live="polite"></p>
-      </form>
+
+        <div id="mediaPreview" class="media-preview">
+          <img id="previewImage" alt="選択した画像のプレビュー">
+          <button id="removeMedia" class="remove-media" type="button" aria-label="画像を削除">×</button>
+        </div>
+
+        <div class="tool-row">
+          <label class="tool-button" title="画像を追加">
+            <span class="tool-image" aria-hidden="true"></span>
+            <input id="imageInput" type="file" accept="image/*">
+          </label>
+          <button id="locationButton" class="tool-button location-button" type="button">📍 現在地</button>
+          <span id="counter" class="counter">0 / 280</span>
+          <button id="postButton" class="post-button" type="button" disabled>投稿</button>
+        </div>
+
+        <div id="locationCard" class="location-card" aria-live="polite">
+          <span aria-hidden="true">📍</span>
+          <div class="location-copy">
+            <div id="locationName" class="location-name">現在地を取得中...</div>
+            <div id="locationCoordinates" class="location-coordinates"></div>
+          </div>
+          <select id="floorSelect" class="floor-select" aria-label="階数">
+            <option value="">階数</option><option>地下1階</option><option>1階</option><option>2階</option><option>3階</option><option>4階</option><option>5階以上</option>
+          </select>
+          <button id="removeLocation" class="remove-location" type="button" aria-label="現在地を削除">×</button>
+        </div>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+      </section>
     </main>
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
@@ -31,5 +92,96 @@
       <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
     </nav>
   </div>
+
+  <script>
+    const input = document.querySelector('#postInput');
+    const counter = document.querySelector('#counter');
+    const postButton = document.querySelector('#postButton');
+    const imageInput = document.querySelector('#imageInput');
+    const mediaPreview = document.querySelector('#mediaPreview');
+    const previewImage = document.querySelector('#previewImage');
+    const locationButton = document.querySelector('#locationButton');
+    const locationCard = document.querySelector('#locationCard');
+    const locationName = document.querySelector('#locationName');
+    const locationCoordinates = document.querySelector('#locationCoordinates');
+    let toastTimer;
+
+    function updateComposer() {
+      const length = [...input.value].length;
+      counter.textContent = `${length} / 280`;
+      counter.className = `counter${length > 250 ? ' warning' : ''}${length > 280 ? ' error' : ''}`;
+      postButton.disabled = length === 0 || length > 280;
+    }
+
+    function showToast(message) {
+      const toast = document.querySelector('#toast');
+      toast.textContent = message;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.textContent = ''; }, 2200);
+    }
+
+    imageInput.addEventListener('change', () => {
+      const file = imageInput.files[0];
+      if (!file) return;
+      previewImage.src = URL.createObjectURL(file);
+      mediaPreview.classList.add('visible');
+      showToast('画像を追加しました');
+    });
+
+    document.querySelector('#removeMedia').addEventListener('click', () => {
+      imageInput.value = '';
+      previewImage.removeAttribute('src');
+      mediaPreview.classList.remove('visible');
+    });
+
+    input.addEventListener('input', updateComposer);
+    locationButton.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showToast('この端末では現在地を取得できません');
+        return;
+      }
+      locationButton.disabled = true;
+      locationButton.textContent = '取得中...';
+      locationCard.classList.add('visible');
+      navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+        locationCoordinates.textContent = `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`;
+        locationName.textContent = '現在地（住所を確認中）';
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${coords.latitude}&lon=${coords.longitude}&zoom=18&accept-language=ja`);
+          if (!response.ok) throw new Error('住所取得失敗');
+          const place = await response.json();
+          locationName.textContent = place.display_name || '現在地';
+        } catch (error) {
+          locationName.textContent = '現在地（住所を取得できませんでした）';
+        }
+        locationButton.disabled = false;
+        locationButton.textContent = '📍 現在地';
+        showToast('現在地を追加しました。階数も選べます');
+      }, () => {
+        locationCard.classList.remove('visible');
+        locationButton.disabled = false;
+        locationButton.textContent = '📍 現在地';
+        showToast('位置情報の利用を許可してください');
+      }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 });
+    });
+
+    document.querySelector('#removeLocation').addEventListener('click', () => {
+      locationCard.classList.remove('visible');
+      locationCoordinates.textContent = '';
+      document.querySelector('#floorSelect').value = '';
+    });
+
+    postButton.addEventListener('click', () => {
+      showToast('投稿しました');
+      input.value = '';
+      imageInput.value = '';
+      previewImage.removeAttribute('src');
+      mediaPreview.classList.remove('visible');
+      locationCard.classList.remove('visible');
+      updateComposer();
+    });
+
+    updateComposer();
+  </script>
 </body>
 </html>
