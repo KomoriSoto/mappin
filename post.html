@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mappin - 投稿</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body data-page="post">
+  <div class="app">
+    <header>mappin</header>
+    <main>
+      <h1 class="page-title">投稿</h1>
+      <form id="post-form">
+        <label class="field-label" for="post-text">いまの様子をシェア</label>
+        <textarea id="post-text" maxlength="280" placeholder="近くの出来事や発見を投稿..."></textarea>
+        <div class="location-row">
+          <span>📍 現在地にピンを立てる</span>
+          <span class="location-state" id="location-state">オン</span>
+        </div>
+        <button class="secondary wide" id="location-toggle" type="button" aria-pressed="true">位置情報をオフにする</button>
+        <button class="primary wide" type="submit">投稿する</button>
+        <p class="notice" id="post-notice" role="status" aria-live="polite"></p>
+      </form>
+    </main>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html"><span>⌂</span>ホーム</a>
+      <a href="inspect.html"><span>⌕</span>検査</a>
+      <a href="post.html" aria-current="page"><span>＋</span>投稿</a>
+      <a href="account.html"><span>○</span>アカウント</a>
+    </nav>
+  </div>
+</body>
+</html>
