@@ -19,6 +19,11 @@ button, a { cursor: pointer; }
   flex-direction: column;
 }
 
+body[data-page="home"] .app {
+  width: 100%;
+  max-width: none;
+}
+
 header {
   height: 56px;
   display: flex;
@@ -30,6 +35,13 @@ header {
 }
 
 main { flex: 1; padding: 16px; }
+body[data-page="home"] main {
+  position: relative;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 .page-title { margin: 4px 0 16px; font-size: 20px; }
 .map {
   height: min(62dvh, 560px);
@@ -46,6 +58,15 @@ main { flex: 1; padding: 16px; }
   background-size: 210px 180px, 260px 230px, 100% 100%, 100% 100%;
 }
 
+body[data-page="home"] .map {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 0;
+}
+
 .map-label {
   position: absolute;
   color: #788072;
@@ -53,6 +74,51 @@ main { flex: 1; padding: 16px; }
   background: #e9eee4cc;
   padding: 3px 5px;
   border-radius: 3px;
+}
+
+.map-post {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateX(-50%);
+}
+
+.comment-bubble {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  width: max-content;
+  max-width: min(210px, 54vw);
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 6px #0002;
+  color: #222;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.comment-icon {
+  flex: 0 0 auto;
+}
+
+.comment-bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 10px;
+  height: 10px;
+  border-right: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  background: white;
+  transform: translateX(-50%) rotate(45deg);
 }
 
 .pin {
@@ -64,6 +130,17 @@ main { flex: 1; padding: 16px; }
   background: #e94b42;
   transform: rotate(-45deg);
   box-shadow: 0 1px 4px #0005;
+}
+
+.map-post--orange .pin { background: #ed8b2c; }
+.map-post--purple .pin { background: #9664c8; }
+.map-post--green .pin { background: #4c9a62; }
+.map-post--blue .pin { background: #4389d3; }
+
+.map-post .pin {
+  position: relative;
+  left: auto;
+  top: auto;
 }
 
 .pin::after {
@@ -140,14 +217,12 @@ nav {
 
 nav a {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #777;
-  font-size: 12px;
   text-decoration: none;
 }
 
 nav a[aria-current="page"] { color: #111; font-weight: 700; }
-nav span { display: block; margin-bottom: 3px; font-size: 19px; }
+nav span { display: block; font-size: 24px; line-height: 1; }
 .notice { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }

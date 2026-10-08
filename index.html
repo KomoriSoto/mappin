@@ -11,24 +11,30 @@
   <div class="app">
     <header>mappin</header>
     <main>
-      <h1 class="page-title">近くの投稿</h1>
-      <div class="map" id="map" role="img" aria-label="投稿ピンと現在地を表示したマップ">
+      <div class="map" id="map" role="region" aria-label="投稿ピンと現在地を表示したマップ">
         <span class="map-label" style="left: 12%; top: 17%">中央公園</span>
         <span class="map-label" style="right: 12%; top: 49%">駅前通り</span>
         <span class="map-label" style="left: 23%; bottom: 15%">さくら通り</span>
-        <span class="pin" style="left: 28%; top: 32%" title="公園の花が咲いています"></span>
-        <span class="pin" style="left: 70%; top: 26%" title="新しいカフェを発見"></span>
-        <span class="pin" style="left: 61%; top: 70%" title="近くの投稿"></span>
+        <div class="map-post map-post--orange" style="left: 28%; top: 32%">
+          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🍔</span>月見バーガーうめぇ</span>
+          <span class="pin" title="月見バーガーうめぇ"></span>
+        </div>
+        <div class="map-post map-post--purple" style="left: 70%; top: 26%">
+          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🛍️</span>ちいかわのコラボグッズまだあります</span>
+          <span class="pin" title="ちいかわのコラボグッズまだあります"></span>
+        </div>
+        <div class="map-post map-post--green" style="left: 61%; top: 70%">
+          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🌸</span>公園の花が咲いています</span>
+          <span class="pin" title="公園の花が咲いています"></span>
+        </div>
         <span class="pin current" style="left: 47%; top: 52%" title="現在地"></span>
       </div>
-      <p class="map-caption">青い点が現在地です。現在地にピンを立てて投稿できます。</p>
-      <a class="primary wide button-link" href="post.html">＋ 現在地にピンを立てて投稿</a>
     </main>
     <nav aria-label="メインナビゲーション">
-      <a href="index.html" aria-current="page"><span>⌂</span>ホーム</a>
-      <a href="inspect.html"><span>⌕</span>検査</a>
-      <a href="post.html"><span>＋</span>投稿</a>
-      <a href="account.html"><span>○</span>アカウント</a>
+      <a href="index.html" aria-label="ホーム" aria-current="page"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="post.html" aria-label="投稿"><span aria-hidden="true">＋</span></a>
+      <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
     </nav>
   </div>
 </body>
