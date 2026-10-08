@@ -3,8 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
   <title>mappin - 投稿を作成</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="app-icon-180.png">
   <link rel="stylesheet" href="style.css">
+  <script src="pwa.js" defer></script>
   <style>
     .profile-row { display: flex; gap: 12px; align-items: flex-start; }
     .avatar { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 50%; color: #fff; background: #3786e8; font-weight: 700; }
@@ -104,6 +108,8 @@
     const locationCard = document.querySelector('#locationCard');
     const locationName = document.querySelector('#locationName');
     const locationCoordinates = document.querySelector('#locationCoordinates');
+    let currentCoordinates = null;
+    let currentAreaName = '現在地周辺';
     let toastTimer;
 
     function updateComposer() {
@@ -144,6 +150,8 @@
       locationButton.textContent = '取得中...';
       locationCard.classList.add('visible');
       navigator.geolocation.getCurrentPosition(async ({ coords }) => {
+        currentCoordinates = { latitude: coords.latitude, longitude: coords.longitude };
+        updateComposer();
         locationCoordinates.textContent = `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`;
         locationName.textContent = '現在地（住所を確認中）';
         try {
@@ -151,8 +159,11 @@
           if (!response.ok) throw new Error('住所取得失敗');
           const place = await response.json();
           locationName.textContent = place.display_name || '現在地';
+          const address = place.address || {};
+          currentAreaName = address.suburb || address.neighbourhood || address.city_district || address.town || address.city || address.county || '現在地周辺';
         } catch (error) {
           locationName.textContent = '現在地（住所を取得できませんでした）';
+          currentAreaName = '現在地周辺';
         }
         locationButton.disabled = false;
         locationButton.textContent = '📍 現在地';
@@ -168,16 +179,51 @@
     document.querySelector('#removeLocation').addEventListener('click', () => {
       locationCard.classList.remove('visible');
       locationCoordinates.textContent = '';
+      currentCoordinates = null;
+      currentAreaName = '現在地周辺';
       document.querySelector('#floorSelect').value = '';
+      updateComposer();
     });
 
     postButton.addEventListener('click', () => {
+      const posts = JSON.parse(localStorage.getItem('mappin-posts') || '[]');
+      const coords = currentCoordinates;
+      const areaId = coords
+        ? `area:${Math.round(coords.latitude / 0.002)}:${Math.round(coords.longitude / (0.002 * Math.cos(coords.latitude * Math.PI / 180)))}`
+        : 'area:nearby';
+      const post = {
+        id: `post-${Date.now()}`,
+        text: input.value.trim(),
+        locationEnabled: Boolean(coords),
+        locationId: areaId,
+        areaId,
+        locationName: currentAreaName,
+        areaName: currentAreaName,
+        placeId: '',
+        placeName: '',
+        category: 'local',
+        latitude: coords?.latitude ?? null,
+        longitude: coords?.longitude ?? null,
+        x: 20 + Math.random() * 60,
+        y: 20 + Math.random() * 60,
+        color: ['red', 'orange', 'purple', 'green', 'blue'][posts.length % 5],
+        icon: '💬',
+        author: 'Yuki Tanaka',
+        avatar: 'Y',
+        photo: '',
+        likes: 0,
+        createdAt: Date.now()
+      };
+      posts.unshift(post);
+      localStorage.setItem('mappin-posts', JSON.stringify(posts));
       showToast('投稿しました');
       input.value = '';
       imageInput.value = '';
       previewImage.removeAttribute('src');
       mediaPreview.classList.remove('visible');
       locationCard.classList.remove('visible');
+      currentCoordinates = null;
+      currentAreaName = '現在地周辺';
       updateComposer();
     });
 

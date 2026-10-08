@@ -3,28 +3,46 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
   <title>mappin - ホーム</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="app-icon-180.png">
   <link rel="stylesheet" href="style.css">
+  <script src="pwa.js" defer></script>
   <script src="app.js" defer></script>
+  <script src="feed.js" defer></script>
 </head>
 <body data-page="home">
   <div class="app">
-    <header>mappin</header>
+    <header class="home-header">
+      <img class="home-logo" src="logo.png" alt="mappin">
+      <button class="notification-button" id="notification-button" type="button" aria-label="通知" aria-expanded="false">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+        </svg>
+        <span class="notification-dot" aria-hidden="true"></span>
+      </button>
+      <div class="notification-panel" id="notification-panel" hidden>
+        <strong>通知</strong>
+        <p><span>♡</span> あなたの投稿にいいねがありました</p>
+        <p><span>＋</span> 新しいおすすめ投稿があります</p>
+      </div>
+    </header>
     <main>
       <div class="map" id="map" role="region" aria-label="投稿ピンと現在地を表示したマップ">
         <span class="map-label" style="left: 12%; top: 17%">中央公園</span>
         <span class="map-label" style="right: 12%; top: 49%">駅前通り</span>
         <span class="map-label" style="left: 23%; bottom: 15%">さくら通り</span>
-        <div class="map-post map-post--orange" style="left: 28%; top: 32%">
-          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🍔</span>月見バーガーうめぇ</span>
+        <div class="map-post map-post--orange" data-post-id="moon-burger" data-location-id="station" data-area-id="station-district" data-area-name="駅前エリア" data-location-name="駅前エリア" data-place-id="moon-burger-shop" data-place-name="駅前のハンバーガー店" data-category="food" data-author="たべもの好き" data-avatar="🍟" data-icon="🍔" data-photo="🍔" data-likes="10" style="left: 28%; top: 32%">
+          <button class="comment-bubble" type="button"><span class="comment-avatar" aria-hidden="true">🍟</span><span>月見バーガーうめぇ</span></button>
           <span class="pin" title="月見バーガーうめぇ"></span>
         </div>
-        <div class="map-post map-post--purple" style="left: 70%; top: 26%">
-          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🛍️</span>ちいかわのコラボグッズまだあります</span>
+        <div class="map-post map-post--purple" data-post-id="chiikawa-goods" data-location-id="shopping" data-area-id="station-district" data-area-name="駅前エリア" data-location-name="駅前ショッピングエリア" data-category="shopping" data-author="ちいかわ情報局" data-avatar="🐰" data-icon="🛍️" data-photo="🛍️" data-likes="24" style="left: 70%; top: 26%">
+          <button class="comment-bubble" type="button"><span class="comment-avatar" aria-hidden="true">🐰</span><span>ちいかわのコラボグッズまだあります</span></button>
           <span class="pin" title="ちいかわのコラボグッズまだあります"></span>
         </div>
-        <div class="map-post map-post--green" style="left: 61%; top: 70%">
-          <span class="comment-bubble"><span class="comment-icon" aria-hidden="true">🌸</span>公園の花が咲いています</span>
+        <div class="map-post map-post--green" data-post-id="park-flowers" data-location-id="park" data-area-id="central-park" data-area-name="中央公園" data-location-name="中央公園" data-category="nature" data-author="さんぽ日和" data-avatar="🌿" data-icon="🌸" data-likes="8" style="left: 61%; top: 70%">
+          <button class="comment-bubble" type="button"><span class="comment-avatar" aria-hidden="true">🌿</span><span>公園の花が咲いています</span></button>
           <span class="pin" title="公園の花が咲いています"></span>
         </div>
         <span class="pin current" style="left: 47%; top: 52%" title="現在地"></span>
@@ -37,5 +55,20 @@
       <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
     </nav>
   </div>
+  <section class="post-overlay" id="post-overlay" role="dialog" aria-modal="true" aria-label="場所の投稿フィード" hidden>
+    <article class="post-feed-dialog">
+      <header class="post-feed-header">
+        <button class="feed-back-button" id="feed-back" type="button" disabled>＜ 戻る</button>
+        <div class="post-feed-heading">
+          <strong id="feed-title">このエリアの投稿</strong>
+        </div>
+        <button class="close-button" id="close-overlay" type="button" aria-label="閉じる">×</button>
+      </header>
+      <div class="post-feed-scroll" id="feed-scroll">
+        <div class="post-feed-list" id="feed-posts"></div>
+        <p class="feed-loader" id="feed-loader" aria-live="polite">スクロールして投稿を読み込む</p>
+      </div>
+    </article>
+  </section>
 </body>
 </html>
