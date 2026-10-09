@@ -7,6 +7,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
+body.overlay-open { overflow: hidden; }
 button, textarea { font: inherit; }
 button, a { cursor: pointer; }
 
@@ -22,6 +23,9 @@ button, a { cursor: pointer; }
 body[data-page="home"] .app {
   width: 100%;
   max-width: none;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
 }
 
 header {
@@ -34,6 +38,51 @@ header {
   font-weight: 700;
 }
 
+body[data-page="home"] .home-header {
+  position: relative;
+  z-index: 4;
+  justify-content: center;
+}
+
+.home-logo {
+  display: block;
+  width: min(130px, 40vw);
+  height: auto;
+}
+
+.notification-button {
+  position: relative;
+  position: absolute;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #222;
+}
+
+.notification-button svg { width: 23px; height: 23px; }
+.notification-button:hover { background: #f2f2f2; }
+.notification-dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border: 1px solid white; border-radius: 50%; background: #e94b42; }
+.notification-panel {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% - 4px);
+  right: 12px;
+  width: min(300px, calc(100vw - 24px));
+  padding: 14px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 4px 18px #0002;
+  font-size: 13px;
+}
+
+.notification-panel p { margin: 12px 0 0; color: #555; }
+.notification-panel p span { margin-right: 6px; color: #e94b42; }
 main { flex: 1; padding: 16px; }
 body[data-page="home"] main {
   position: relative;
@@ -65,6 +114,7 @@ body[data-page="home"] .map {
   height: 100%;
   min-height: 0;
   border: 0;
+  background: #e9eee4 url("bg.png") center / cover no-repeat;
 }
 
 .map-label {
@@ -102,10 +152,22 @@ body[data-page="home"] .map {
   font-size: 12px;
   line-height: 1.4;
   overflow-wrap: anywhere;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
 }
 
-.comment-icon {
+.comment-avatar {
   flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #e7edf2;
+  font-size: 14px;
+  line-height: 1;
 }
 
 .comment-bubble::after {
@@ -152,6 +214,24 @@ body[data-page="home"] .map {
   top: 5px;
   border-radius: 50%;
   background: white;
+}
+
+.pin-cluster-count {
+  position: absolute;
+  top: calc(100% - 16px);
+  left: calc(50% + 10px);
+  min-width: 21px;
+  height: 21px;
+  display: grid;
+  place-items: center;
+  padding: 0 4px;
+  border: 2px solid white;
+  border-radius: 12px;
+  background: #222;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px #0004;
 }
 
 .pin.current {
@@ -210,19 +290,201 @@ nav {
   bottom: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  min-height: 64px;
+  height: calc(92px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(92px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   border-top: 1px solid #ddd;
   background: white;
 }
 
 nav a {
   display: flex;
+  min-width: 0;
+  min-height: 92px;
   align-items: center;
   justify-content: center;
   color: #777;
   text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 nav a[aria-current="page"] { color: #111; font-weight: 700; }
-nav span { display: block; font-size: 24px; line-height: 1; }
+nav span { display: block; font-size: 38px; line-height: 1; }
 .notice { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }
+
+.post-overlay[hidden], .post-photo[hidden], .replying-to[hidden] { display: none; }
+.post-overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #0006;
+}
+
+.post-feed-dialog {
+  width: min(100%, 640px);
+  height: min(94dvh, 900px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f6f7f8;
+  box-shadow: 0 12px 40px #0004;
+}
+
+.post-feed-header {
+  position: relative;
+  height: auto;
+  flex: 0 0 auto;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  background: white;
+  font-size: initial;
+  font-weight: 400;
+}
+
+.post-feed-heading { position: absolute; left: 50%; width: min(calc(100% - 150px), 360px); min-width: 0; display: grid; justify-items: center; gap: 2px; transform: translateX(-50%); text-align: center; }
+.post-feed-header small { max-width: 100%; overflow: hidden; color: #777; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.post-feed-header strong { max-width: 100%; overflow: hidden; font-size: 16px; text-overflow: ellipsis; white-space: nowrap; }
+.feed-back-button { justify-self: start; padding: 6px 0; border: 0; background: transparent; color: #555; font-size: 13px; white-space: nowrap; }
+.feed-back-button:disabled { color: #aaa; cursor: default; }
+.feed-back-button:not(:disabled) { color: #35a9d6; }
+.post-feed-header .close-button { justify-self: end; }
+.post-feed-scroll { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; }
+.post-feed-list { display: grid; gap: 10px; padding: 10px; }
+.feed-post { padding: 14px 16px; border: 1px solid #e8e8e8; border-radius: 10px; background: white; }
+.feed-post-header { min-width: 0; display: flex; align-items: center; gap: 9px; }
+.feed-post-header .avatar { width: 38px; height: 38px; }
+.feed-post-identity { min-width: 0; display: grid; gap: 3px; }
+.feed-post-identity strong { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.feed-post-identity > span { overflow: hidden; color: #888; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.feed-post-identity .feed-place { width: fit-content; max-width: 100%; overflow: hidden; padding: 0; border: 0; background: transparent; color: #888; font-size: 11px; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.feed-post-identity .feed-place:hover { color: #222; text-decoration: underline; }
+.feed-follow { flex: 0 0 auto; margin-left: auto; padding: 6px 10px; border: 1px solid #222; border-radius: 18px; background: white; font-size: 12px; white-space: nowrap; }
+.feed-follow.is-following { background: #222; color: white; }
+.feed-post-time { flex: 0 0 auto; margin-left: auto; color: #888; font-size: 11px; }
+.feed-post-text { margin: 12px 0; font-size: 14px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.feed-post-photo { min-height: 170px; display: grid; place-items: center; border-radius: 8px; background: linear-gradient(145deg, #fff2c6, #f2cf87); font-size: 78px; }
+.feed-post-actions { display: flex; align-items: center; gap: 22px; min-height: 44px; border-bottom: 1px solid #eee; }
+.feed-post-actions button { display: inline-flex; align-items: center; gap: 5px; padding: 6px 3px; border: 0; background: transparent; color: #555; font-size: 13px; }
+.feed-post-actions button > span:first-child { font-size: 21px; }
+.feed-post-actions button.is-active { color: #e34f5f; }
+.feed-post-actions [data-feed-action="bookmark"].is-active { color: #4389d3; }
+.feed-post-actions time { margin-left: auto; color: #888; font-size: 11px; }
+.feed-comments { padding-top: 8px; }
+.feed-comments-list { display: grid; gap: 8px; }
+.feed-comment { display: flex; align-items: flex-start; gap: 8px; }
+.feed-comment .small-avatar { width: 27px; height: 27px; font-size: 15px; }
+.feed-comment-body { min-width: 0; flex: 1; }
+.feed-comment-meta { display: flex; align-items: baseline; gap: 8px; }
+.feed-comment-meta strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.feed-comment-meta time { margin-left: auto; flex: 0 0 auto; color: #888; font-size: 10px; }
+.feed-comment-body > p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.feed-reply-button { margin-top: 3px; padding: 0; border: 0; background: transparent; color: #777; font-size: 11px; }
+.feed-replies { display: grid; gap: 8px; margin: 8px 0 0 8px; padding-left: 9px; border-left: 2px solid #eee; }
+.feed-replying { margin: 8px 0 0; color: #777; font-size: 11px; }
+.feed-replying[hidden] { display: none; }
+.feed-comment-form { display: flex; gap: 8px; margin-top: 10px; }
+.feed-comment-form[hidden] { display: none; }
+.feed-comment-form input { min-width: 0; flex: 1; padding: 9px 12px; border: 1px solid #ddd; border-radius: 20px; }
+.feed-comment-form button { padding: 8px 12px; border: 0; border-radius: 20px; background: #222; color: white; }
+.feed-loader { padding: 8px 12px 20px; color: #888; font-size: 12px; text-align: center; }
+
+.post-detail {
+  width: min(100%, 560px);
+  height: min(92dvh, 820px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 12px 40px #0004;
+}
+
+.post-detail-scroll {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.post-author-row {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e9eee4;
+  font-size: 22px;
+}
+
+.small-avatar { width: 32px; height: 32px; font-size: 18px; }
+.follow-button { margin-left: auto; padding: 7px 13px; border: 1px solid #222; border-radius: 18px; background: white; }
+.follow-button.is-following { background: #222; color: white; }
+.close-button { width: 36px; height: 36px; border: 0; border-radius: 50%; background: #f1f1f1; font-size: 25px; line-height: 1; }
+.detail-text { margin: 0; padding: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.post-photo {
+  min-height: 220px;
+  margin: 0 16px 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #fff2c6, #f2cf87);
+  font-size: 100px;
+}
+
+.post-actions { display: flex; align-items: center; gap: 18px; padding: 8px 16px 14px; border-bottom: 1px solid #eee; }
+.post-actions button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; color: #555; font-size: 15px; }
+.post-actions button span:first-child { font-size: 23px; }
+.post-actions button.is-active { color: #e34f5f; }
+.post-actions [data-action="bookmark"].is-active { color: #4389d3; }
+.post-time { margin-left: auto; color: #777; font-size: 12px; white-space: nowrap; }
+.comments-section { padding: 0 16px 12px; }
+.comments-section h2 { margin: 14px 0 8px; font-size: 15px; }
+.comments-list { display: grid; gap: 14px; }
+.comments-list { max-height: min(32dvh, 280px); overflow-y: auto; padding-right: 4px; }
+.comment-item { display: flex; align-items: flex-start; gap: 9px; }
+.comment-content { min-width: 0; flex: 1; }
+.comment-meta { display: flex; align-items: baseline; gap: 8px; }
+.comment-content strong { min-width: 0; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.comment-time { margin-left: auto; flex: 0 0 auto; color: #888; font-size: 11px; }
+.comment-content p { margin: 3px 0 5px; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reply-button { padding: 0; border: 0; background: transparent; color: #777; font-size: 12px; }
+.comment-replies { display: grid; gap: 10px; margin: 10px 0 0 8px; padding-left: 12px; border-left: 2px solid #eee; }
+.comment-composer { display: flex; align-items: center; gap: 9px; padding: 10px 14px; border-top: 1px solid #eee; background: white; }
+.comment-composer input { min-width: 0; flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 20px; }
+.comment-composer button { padding: 9px 12px; border: 0; border-radius: 20px; background: #222; color: white; }
+.replying-to { margin: 0; padding: 4px 16px 8px; color: #777; font-size: 12px; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 480px) {
+  .post-overlay { align-items: flex-end; padding: 0 10px; }
+  .post-feed-dialog { width: 100%; height: 94dvh; border-radius: 14px 14px 0 0; }
+  .post-feed-header { gap: 4px; padding: 8px 10px; }
+  .post-feed-list { padding: 8px; }
+  .post-detail { width: 100%; height: 92dvh; border-radius: 14px 14px 0 0; }
+  .post-photo { min-height: 180px; }
+}
