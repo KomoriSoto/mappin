@@ -22,8 +22,7 @@ button, a { cursor: pointer; }
 }
 
 body[data-page="home"] .app {
-  width: 100%;
-  max-width: none;
+  width: min(100%, 480px);
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
@@ -39,25 +38,34 @@ header {
   font-weight: 700;
 }
 
-body[data-page="home"] .home-header {
+.app-header {
   position: relative;
-  z-index: 4;
-  justify-content: center;
 }
 
-.home-brand {
+body[data-page="home"] .app-header {
+  position: relative;
+  z-index: 4;
+}
+
+body[data-page="home"] .app-brand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.app-brand {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.home-logo {
+.app-logo {
   display: block;
-  width: 34px;
+  width: 28px;
   height: auto;
 }
 
-.home-brand-name { font-size: 18px; font-weight: 700; }
+.app-brand-name { font-size: 18px; font-weight: 700; }
 
 .notification-button {
   position: relative;
