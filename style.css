@@ -29,7 +29,10 @@ body[data-page="home"] .app {
 }
 
 header {
+  position: relative;
+  flex: 0 0 56px;
   height: 56px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   padding: 0 18px;
@@ -40,17 +43,14 @@ header {
 
 .app-header {
   position: relative;
-}
-
-body[data-page="home"] .app-header {
-  position: relative;
   z-index: 4;
 }
 
-body[data-page="home"] .app-brand {
+.app-header .app-brand {
   position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
 }
 
 .app-brand {
@@ -70,17 +70,19 @@ body[data-page="home"] .app-brand {
 .app-brand-name { font-size: 18px; font-weight: 700; }
 
 .notification-button {
-  position: relative;
   position: absolute;
+  top: 50%;
   right: 12px;
   width: 40px;
   height: 40px;
+  padding: 0;
   display: grid;
   place-items: center;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: #222;
+  transform: translateY(-50%);
 }
 
 .notification-button svg { width: 23px; height: 23px; }

@@ -1,3 +1,19 @@
+const notificationButton = document.getElementById("notification-button");
+const notificationPanel = document.getElementById("notification-panel");
+if (notificationButton && notificationPanel) {
+  notificationButton.addEventListener("click", () => {
+    const isExpanded = notificationButton.getAttribute("aria-expanded") === "true";
+    notificationButton.setAttribute("aria-expanded", String(!isExpanded));
+    notificationPanel.hidden = isExpanded;
+  });
+  document.addEventListener("click", (event) => {
+    if (!notificationButton.contains(event.target) && !notificationPanel.contains(event.target)) {
+      notificationButton.setAttribute("aria-expanded", "false");
+      notificationPanel.hidden = true;
+    }
+  });
+}
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")

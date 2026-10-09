@@ -1,4 +1,4 @@
-const CACHE_NAME = "mappin-shell-v3";
+const CACHE_NAME = "mappin-shell-v6";
 const APP_FILES = [
   "./",
   "./index.html",
