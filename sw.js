@@ -1,4 +1,4 @@
-const CACHE_NAME = "mappin-shell-v1";
+const CACHE_NAME = "mappin-shell-v2";
 const APP_FILES = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const APP_FILES = [
   "./manifest.webmanifest",
   "./logo.png",
   "./bg.png",
+  "./bg2.png",
   "./app-icon-180.png",
   "./app-icon-192.png",
   "./app-icon-512.png",
@@ -22,7 +23,6 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(APP_FILES))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -36,6 +36,10 @@ self.addEventListener("activate", (event) => {
       ))
       .then(() => self.clients.claim())
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data === "SKIP_WAITING") self.skipWaiting();
 });
 
 self.addEventListener("fetch", (event) => {

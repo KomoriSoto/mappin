@@ -92,6 +92,39 @@ body[data-page="home"] .home-header {
 
 .notification-panel p { margin: 12px 0 0; color: #555; }
 .notification-panel p span { margin-right: 6px; color: #e94b42; }
+.pwa-update-prompt {
+  position: fixed;
+  z-index: 30;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  width: min(480px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 18px #0003;
+  font-size: 13px;
+}
+.pwa-update-prompt button {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: #222;
+  color: #fff;
+}
+.pwa-update-prompt .pwa-update-later {
+  padding-right: 0;
+  padding-left: 0;
+  background: transparent;
+  color: #666;
+}
 main { flex: 1; padding: 16px; }
 body[data-page="home"] main {
   position: relative;
@@ -515,6 +548,13 @@ nav span { display: block; font-size: 38px; line-height: 1; }
     color: #eee;
   }
   .notification-panel p { color: #bbb; }
+  .pwa-update-prompt {
+    border-color: #444;
+    background: #252527;
+    color: #eee;
+  }
+  .pwa-update-prompt button { background: #eee; color: #222; }
+  .pwa-update-prompt .pwa-update-later { background: transparent; color: #bbb; }
 
   .map-label {
     color: #e0e5dc;
