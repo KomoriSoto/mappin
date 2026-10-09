@@ -10,26 +10,69 @@
   <link rel="apple-touch-icon" href="app-icon-180.png">
   <link rel="stylesheet" href="style.css">
   <script src="pwa.js" defer></script>
+  <style>
+    .inspect-main { padding: 12px 16px 20px; }
+    .inspect-search { position: relative; margin-bottom: 20px; }
+    .search-box { display: flex; align-items: center; gap: 9px; height: 44px; padding: 0 14px; border: 1px solid #d8dce1; border-radius: 24px; background: #f3f5f7; }
+    .search-box:focus-within { border-color: #3786e8; background: #fff; box-shadow: 0 0 0 3px #3786e822; }
+    .search-icon { color: #68717c; font-size: 18px; }
+    .search-input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #222; font-size: 14px; }
+    .search-input::placeholder { color: #68717c; }
+    .search-panel { display: none; margin-top: 8px; padding: 12px; border: 1px solid #e0e3e7; border-radius: 10px; background: #fff; box-shadow: 0 4px 14px #00000012; }
+    .search-panel.visible { display: block; }
+    .search-panel-title { margin: 0 0 9px; color: #68717c; font-size: 12px; font-weight: 700; }
+    .search-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+    .search-chip { padding: 7px 11px; border: 1px solid #d7dce2; border-radius: 18px; color: #39434d; background: #fff; font-size: 12px; }
+    .search-chip.is-selected { border-color: #3786e8; color: #fff; background: #3786e8; }
+    .search-submit { width: 100%; min-height: 36px; margin-top: 11px; border: 0; border-radius: 18px; color: #fff; background: #222; font-size: 13px; font-weight: 700; }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 10px; }
+    .section-heading h1 { margin: 0; font-size: 20px; }
+    .section-heading span { color: #68717c; font-size: 12px; }
+    .recommendation-list { display: grid; gap: 10px; }
+    .recommendation-card { padding: 13px; border: 1px solid #e0e3e7; border-radius: 10px; background: #fff; }
+    .recommendation-meta { display: flex; align-items: center; gap: 7px; color: #68717c; font-size: 11px; }
+    .recommendation-icon { display: grid; width: 29px; height: 29px; place-items: center; border-radius: 50%; background: #eef4fb; font-size: 16px; }
+    .recommendation-card h2 { margin: 9px 0 3px; font-size: 16px; }
+    .recommendation-card p { margin: 0; color: #555e68; font-size: 13px; line-height: 1.5; }
+    .recommendation-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+    .recommendation-tag { padding: 4px 8px; border-radius: 12px; color: #2868ae; background: #f1f7ff; font-size: 11px; }
+    .ai-advice { margin-top: 18px; padding: 13px; border: 1px solid #d6e5f7; border-radius: 10px; background: #f5f9ff; }
+    .ai-advice strong { color: #2868ae; font-size: 13px; }
+    .ai-advice p { margin: 7px 0 0; color: #45515d; font-size: 13px; line-height: 1.5; }
+  </style>
 </head>
 <body data-page="inspect">
   <div class="app">
     <header>mappin</header>
     <main>
-      <h1 class="page-title">検査</h1>
-      <div class="card">
-        <strong>周辺の状況</strong>
-        <p class="muted">マップ周辺の投稿を確認できます。</p>
+      <div class="inspect-search">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="placeSearch" class="search-input" type="search" placeholder="場所ややりたいことを検索" autocomplete="off">
+        </div>
+        <div id="searchPanel" class="search-panel">
+          <p class="search-panel-title">検索ワードを選択（複数可）</p>
+          <div id="searchChips" class="search-chips">
+            <button class="search-chip" type="button" data-term="ドライブ">ドライブ</button>
+            <button class="search-chip" type="button" data-term="買い物">買い物</button>
+            <button class="search-chip" type="button" data-term="デート">デート</button>
+            <button class="search-chip" type="button" data-term="到着まで30分">到着まで30分</button>
+            <button class="search-chip" type="button" data-term="カフェ">カフェ</button>
+            <button class="search-chip" type="button" data-term="公園">公園</button>
+          </div>
+          <button id="searchSubmit" class="search-submit" type="button">この条件で探す</button>
+        </div>
       </div>
-      <div class="card">
-        <strong>近くの投稿</strong>
-        <p>中央公園に新しい投稿があります。</p>
-        <p class="muted">現在地から約 300 m</p>
+
+      <div class="section-heading">
+        <h1>本日のおすすめ</h1>
+        <span id="recommendationStatus">あなた向け</span>
       </div>
-      <div class="card">
-        <strong>駅前通り</strong>
-        <p>駅前の様子をチェックしてみましょう。</p>
-        <p class="muted">現在地から約 500 m</p>
-      </div>
+      <div id="recommendationList" class="recommendation-list"></div>
+      <aside class="ai-advice" aria-live="polite">
+        <strong>✦ AIからのアドバイス</strong>
+        <p id="aiAdvice">検索履歴を参考に、あなたに合いそうな場所を選びます。</p>
+      </aside>
     </main>
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
@@ -38,5 +81,68 @@
       <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
     </nav>
   </div>
+  <script>
+    const searchInput = document.querySelector('#placeSearch');
+    const searchPanel = document.querySelector('#searchPanel');
+    const searchSubmit = document.querySelector('#searchSubmit');
+    const recommendationList = document.querySelector('#recommendationList');
+    const recommendationStatus = document.querySelector('#recommendationStatus');
+    const aiAdvice = document.querySelector('#aiAdvice');
+    const historyKey = 'mappin-search-history';
+    const recommendations = [
+      { icon: '☕', name: '駅前の静かなカフェ', detail: '落ち着いて過ごせる席が見つかりそうです。', tags: ['カフェ', '到着まで30分'] },
+      { icon: '🌿', name: '中央公園の夕方さんぽ', detail: '今日は天気がよく、少し歩きたい日におすすめです。', tags: ['公園', 'デート'] },
+      { icon: '🛍', name: '駅前ショッピングエリア', detail: '新しいお店と期間限定のイベントをチェックできます。', tags: ['買い物', '到着まで30分'] },
+      { icon: '🚗', name: '海沿いのドライブルート', detail: '景色を楽しみながら寄り道できるルートです。', tags: ['ドライブ', 'デート'] }
+    ];
+
+    function readSearchHistory() {
+      try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (error) { return []; }
+    }
+
+    function renderRecommendations(terms = []) {
+      const filtered = terms.length
+        ? recommendations.filter((item) => terms.some((term) => item.tags.includes(term)))
+        : recommendations.slice(0, 3);
+      recommendationList.replaceChildren();
+      (filtered.length ? filtered : recommendations.slice(0, 2)).forEach((item) => {
+        const card = document.createElement('article');
+        card.className = 'recommendation-card';
+        card.innerHTML = `<div class="recommendation-meta"><span class="recommendation-icon">${item.icon}</span><span>AIがおすすめ</span></div><h2>${item.name}</h2><p>${item.detail}</p><div class="recommendation-tags">${item.tags.map((tag) => `<span class="recommendation-tag">${tag}</span>`).join('')}</div>`;
+        recommendationList.append(card);
+      });
+      recommendationStatus.textContent = terms.length ? `${terms.join('・')}で検索中` : 'あなた向け';
+    }
+
+    function updateAdvice() {
+      const history = readSearchHistory();
+      if (!history.length) return;
+      const latest = history.slice(-3).join('・');
+      aiAdvice.textContent = `最近は「${latest}」を調べていますね。今日は移動時間の短い場所から見ると、予定を決めやすそうです。`;
+    }
+
+    searchInput.addEventListener('focus', () => searchPanel.classList.add('visible'));
+    document.querySelectorAll('.search-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('is-selected');
+        const selected = [...document.querySelectorAll('.search-chip.is-selected')].map((item) => item.dataset.term);
+        searchInput.value = selected.join('・');
+      });
+    });
+    searchSubmit.addEventListener('click', () => {
+      const selected = [...document.querySelectorAll('.search-chip.is-selected')].map((item) => item.dataset.term);
+      const typed = searchInput.value.trim();
+      const terms = selected.length ? selected : (typed ? [typed] : []);
+      if (terms.length) {
+        const history = [...readSearchHistory(), ...terms].slice(-6);
+        localStorage.setItem(historyKey, JSON.stringify(history));
+      }
+      renderRecommendations(terms);
+      updateAdvice();
+      searchPanel.classList.remove('visible');
+    });
+    renderRecommendations();
+    updateAdvice();
+  </script>
 </body>
 </html>

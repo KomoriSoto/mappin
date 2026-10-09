@@ -18,6 +18,17 @@
     .identity span { color: #777; font-size: 13px; }
     .post-input { min-height: 126px; border: 0; padding: 0; outline: 0; font-size: 17px; }
     .post-input:focus { border: 0; }
+    .cancel-button { margin: 4px 0 16px; padding: 0; border: 0; color: #2868ae; background: transparent; font-size: 15px; cursor: pointer; }
+    .mobile-keyboard { margin: 16px -16px -16px; padding: 8px 5px 10px; border-top: 1px solid #c9c9c9; background: #dfe2e7; }
+    .keyboard-toolbar { display: flex; justify-content: space-between; align-items: center; min-height: 24px; padding: 0 6px 6px; color: #69717c; font-size: 12px; }
+    .keyboard-keys { display: grid; gap: 6px 4px; }
+    .keyboard-row { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; }
+    .keyboard-row:nth-child(2) { padding: 0 13px; }
+    .keyboard-row:nth-child(3) { padding: 0 28px; }
+    .keyboard-key { min-width: 0; height: 38px; padding: 0; border: 0; border-radius: 4px; color: #25272b; background: #fff; box-shadow: 0 1px 1px #8d9299; font-size: 16px; }
+    .keyboard-key--wide { grid-column: span 2; }
+    .keyboard-key--space { grid-column: span 6; font-size: 12px; }
+    .keyboard-key--dark { color: #fff; background: #aeb3bb; }
     .reply-setting { display: inline-block; margin-top: 8px; padding: 6px 10px; border: 1px solid #b9d5f5; border-radius: 5px; color: #2868ae; background: #f1f7ff; font-size: 12px; }
     .media-preview { position: relative; display: none; margin-top: 12px; }
     .media-preview.visible { display: block; }
@@ -60,13 +71,13 @@
   <div class="app">
     <header>mappin</header>
     <main>
-      <h1 class="page-title">投稿を作成</h1>
+      <button class="cancel-button" type="button">キャンセル</button>
       <section class="card" aria-label="投稿フォーム">
         <div class="profile-row">
           <div class="avatar" aria-hidden="true">Y</div>
           <div style="flex: 1">
             <div class="identity"><strong>Yuki Tanaka</strong><span>@yuki_design</span></div>
-            <textarea id="postInput" class="post-input" maxlength="280" placeholder="今どこにいる？" autofocus></textarea>
+            <textarea id="postInput" class="post-input" maxlength="280" placeholder="ここに文字を入力"></textarea>
             <div class="reply-setting">◉ 全員が返信できます</div>
           </div>
         </div>
@@ -99,6 +110,21 @@
         </div>
         <div id="toast" class="toast" role="status" aria-live="polite"></div>
       </section>
+
+      <div class="mobile-keyboard" aria-label="スマートフォンのキーパッド">
+        <div class="keyboard-toolbar"><span>あいう</span><span>⌃</span></div>
+        <div class="keyboard-keys" aria-hidden="true">
+          <div class="keyboard-row">
+            <button class="keyboard-key" type="button">あ</button><button class="keyboard-key" type="button">か</button><button class="keyboard-key" type="button">さ</button><button class="keyboard-key" type="button">た</button><button class="keyboard-key" type="button">な</button><button class="keyboard-key" type="button">は</button><button class="keyboard-key" type="button">ま</button><button class="keyboard-key" type="button">や</button><button class="keyboard-key" type="button">ら</button><button class="keyboard-key" type="button">わ</button>
+          </div>
+          <div class="keyboard-row">
+            <button class="keyboard-key" type="button">か</button><button class="keyboard-key" type="button">き</button><button class="keyboard-key" type="button">く</button><button class="keyboard-key" type="button">け</button><button class="keyboard-key" type="button">こ</button><button class="keyboard-key" type="button">、</button><button class="keyboard-key" type="button">。</button><button class="keyboard-key" type="button">？</button><button class="keyboard-key keyboard-key--dark" type="button">⌫</button><button class="keyboard-key keyboard-key--dark" type="button">↵</button>
+          </div>
+          <div class="keyboard-row">
+            <button class="keyboard-key keyboard-key--dark keyboard-key--wide" type="button">123</button><button class="keyboard-key keyboard-key--space" type="button">空白</button><button class="keyboard-key keyboard-key--dark keyboard-key--wide" type="button">確定</button>
+          </div>
+        </div>
+      </div>
     </main>
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
