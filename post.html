@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
   <title>mappin - 投稿を作成</title>
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="app-icon-180.png">
@@ -43,6 +44,16 @@
     .floor-select { padding: 6px; border: 1px solid #a9d9c7; border-radius: 5px; color: #176b53; background: #fff; font-size: 11px; }
     .remove-location { width: 26px; height: 26px; color: #176b53; font-size: 18px; }
     .toast { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }
+
+    @media (prefers-color-scheme: dark) {
+      .reply-setting, .tool-button { background: #1b2a3b; }
+      .location-card, .location-card.visible { border-color: #285643; color: #a4dbc3; background: #152820; }
+      .location-coordinates { color: #8bb9a5; }
+      .floor-select { border-color: #386b56; color: #a4dbc3; background: #202a25; }
+      .counter { color: #aaa; }
+      .counter.warning { color: #f0b44d; }
+      .counter.error { color: #ff7777; }
+    }
   </style>
 </head>
 <body>
