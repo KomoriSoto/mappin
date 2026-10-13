@@ -16,26 +16,51 @@
     .dm-copy span { margin-top: 4px; color: #68717c; font-size: 12px; }
     .dm-time { align-self: flex-start; color: #8a929b; font-size: 10px; }
     .dm-note { margin: 20px 0 0; color: #68717c; font-size: 12px; line-height: 1.5; }
+    .chat-view { display: none; }
+    .chat-view.visible { display: block; }
+    .chat-header { display: flex; align-items: center; gap: 10px; margin: 4px 0 16px; }
+    .chat-back { padding: 5px 0; border: 0; color: #2868ae; background: transparent; font-size: 14px; }
+    .chat-person { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+    .chat-person .dm-avatar { width: 34px; height: 34px; font-size: 17px; }
+    .chat-messages { display: grid; gap: 9px; min-height: 300px; padding: 12px 0; }
+    .chat-bubble { max-width: 78%; padding: 9px 12px; border-radius: 14px; color: #30363d; background: #eef1f4; font-size: 13px; line-height: 1.45; }
+    .chat-bubble.mine { margin-left: auto; color: #fff; background: #3786e8; }
+    .chat-form { display: flex; gap: 8px; margin-top: 12px; }
+    .chat-input { min-width: 0; flex: 1; min-height: 42px; padding: 0 12px; border: 1px solid #d2d6da; border-radius: 21px; }
+    .chat-send { min-width: 56px; border: 0; border-radius: 21px; color: #fff; background: #222; font-weight: 700; }
   </style>
 </head>
 <body data-page="dm">
   <div class="app">
     <header>mappin</header>
     <main class="dm-main">
-      <h1 class="dm-heading">メッセージ</h1>
-      <div class="dm-list">
-        <button class="dm-conversation" type="button">
-          <span class="dm-avatar" aria-hidden="true">🌿</span>
-          <span class="dm-copy"><strong>さんぽ日和</strong><span>中央公園の花、見ごろですよ！</span></span>
-          <span class="dm-time">10:24</span>
-        </button>
-        <button class="dm-conversation" type="button">
-          <span class="dm-avatar" aria-hidden="true">🍟</span>
-          <span class="dm-copy"><strong>たべもの好き</strong><span>月見バーガーの情報ありがとう</span></span>
-          <span class="dm-time">昨日</span>
-        </button>
-      </div>
-      <p class="dm-note">ここでは、場所の情報やおすすめを友だちとやりとりできます。</p>
+      <section id="dmListView">
+        <h1 class="dm-heading">メッセージ</h1>
+        <div class="dm-list">
+          <button class="dm-conversation" type="button" data-person="さんぽ日和" data-avatar="🌿" data-message="中央公園の花、見ごろですよ！">
+            <span class="dm-avatar" aria-hidden="true">🌿</span>
+            <span class="dm-copy"><strong>さんぽ日和</strong><span>中央公園の花、見ごろですよ！</span></span>
+            <span class="dm-time">10:24</span>
+          </button>
+          <button class="dm-conversation" type="button" data-person="たべもの好き" data-avatar="🍟" data-message="月見バーガーの情報ありがとう">
+            <span class="dm-avatar" aria-hidden="true">🍟</span>
+            <span class="dm-copy"><strong>たべもの好き</strong><span>月見バーガーの情報ありがとう</span></span>
+            <span class="dm-time">昨日</span>
+          </button>
+        </div>
+        <p class="dm-note">ここでは、場所の情報やおすすめを友だちとやりとりできます。</p>
+      </section>
+      <section id="chatView" class="chat-view" aria-live="polite">
+        <div class="chat-header">
+          <button id="chatBack" class="chat-back" type="button">‹ 戻る</button>
+          <div class="chat-person"><span id="chatAvatar" class="dm-avatar" aria-hidden="true"></span><span id="chatPerson"></span></div>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <form id="chatForm" class="chat-form">
+          <input id="chatInput" class="chat-input" type="text" placeholder="メッセージを入力" autocomplete="off">
+          <button class="chat-send" type="submit">送信</button>
+        </form>
+      </section>
     </main>
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
@@ -46,5 +71,58 @@
     </nav>
     <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
   </div>
+  <script>
+    const dmListView = document.querySelector('#dmListView');
+    const chatView = document.querySelector('#chatView');
+    const chatPerson = document.querySelector('#chatPerson');
+    const chatAvatar = document.querySelector('#chatAvatar');
+    const chatMessages = document.querySelector('#chatMessages');
+    const chatForm = document.querySelector('#chatForm');
+    const chatInput = document.querySelector('#chatInput');
+
+    function addChatMessage(text, mine = false) {
+      const message = document.createElement('div');
+      message.className = `chat-bubble${mine ? ' mine' : ''}`;
+      message.textContent = text;
+      chatMessages.append(message);
+    }
+
+    function openChat(person, avatar, latestMessage) {
+      chatPerson.textContent = person;
+      chatAvatar.textContent = avatar;
+      chatMessages.replaceChildren();
+      addChatMessage(latestMessage);
+      addChatMessage('こちらこそ、ありがとうございます！', true);
+      dmListView.hidden = true;
+      chatView.classList.add('visible');
+      chatInput.focus();
+    }
+
+    document.querySelectorAll('.dm-conversation').forEach((conversation) => {
+      conversation.addEventListener('click', () => openChat(
+        conversation.dataset.person,
+        conversation.dataset.avatar,
+        conversation.dataset.message
+      ));
+    });
+
+    document.querySelector('#chatBack').addEventListener('click', () => {
+      chatView.classList.remove('visible');
+      dmListView.hidden = false;
+    });
+
+    chatForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const text = chatInput.value.trim();
+      if (!text) return;
+      addChatMessage(text, true);
+      chatInput.value = '';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    const params = new URLSearchParams(location.search);
+    const person = params.get('person');
+    if (person) openChat(person, params.get('avatar') || '🙂', 'プロフィールからメッセージを送れます。');
+  </script>
 </body>
 </html>

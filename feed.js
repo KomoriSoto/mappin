@@ -81,8 +81,12 @@ function createFeedComment(comment) {
   if (!Number(comment.createdAt)) comment.createdAt = Date.now();
   const wrapper = document.createElement("article");
   wrapper.className = "feed-comment";
-  const avatar = document.createElement("span");
-  avatar.className = "avatar small-avatar";
+  const avatar = document.createElement("button");
+  avatar.className = "avatar small-avatar profile-avatar-button";
+  avatar.type = "button";
+  avatar.dataset.profileAuthor = comment.author;
+  avatar.dataset.profileAvatar = comment.avatar || "🙂";
+  avatar.setAttribute("aria-label", `${comment.author}のプロフィールを表示`);
   avatar.textContent = comment.avatar || "🙂";
   const body = document.createElement("div");
   body.className = "feed-comment-body";
@@ -140,8 +144,12 @@ function makeFeedPostElement(post) {
 
   const header = document.createElement("div");
   header.className = "feed-post-header";
-  const avatar = document.createElement("span");
-  avatar.className = "avatar";
+  const avatar = document.createElement("button");
+  avatar.className = "avatar profile-avatar-button";
+  avatar.type = "button";
+  avatar.dataset.profileAuthor = post.author;
+  avatar.dataset.profileAvatar = post.avatar || "🙂";
+  avatar.setAttribute("aria-label", `${post.author}のプロフィールを表示`);
   avatar.textContent = post.avatar || "🙂";
   const identity = document.createElement("div");
   identity.className = "feed-post-identity";
@@ -227,6 +235,11 @@ if (overlay && map) {
   let areaScrollTop = 0;
   let areaRenderedCount = 0;
   let inPlaceView = false;
+  let profileMode = false;
+  let profileReturnPosts = [];
+  let profileReturnTitle = "";
+  let profileReturnCanGoBack = false;
+  let profileReturnScrollTop = 0;
   let commentDialogAction = null;
 
   const commentModal = document.createElement("div");
@@ -363,6 +376,18 @@ if (overlay && map) {
       || Number(b.createdAt || 0) - Number(a.createdAt || 0));
   }
 
+  function getProfilePosts(author) {
+    const mapPosts = [...document.querySelectorAll(".map-post")].map(postFromMapElement);
+    const stored = JSON.parse(localStorage.getItem(feedPostsKey) || "[]")
+      .filter((post) => post.locationEnabled)
+      .map((post) => ({ ...post, sourceId: post.id }));
+    const candidates = [...mapPosts, ...orderedPosts, ...samePlacePosts, ...stored, ...Object.values(relatedPosts).flat()];
+    return [...new Map(candidates
+      .filter((post) => post.author === author)
+      .map((post) => [post.id, post])).values()]
+      .sort((first, second) => Number(second.createdAt || 0) - Number(first.createdAt || 0));
+  }
+
   function renderFeed(posts, title, canGoBack = false) {
     orderedPosts = posts;
     renderedCount = 0;
@@ -416,6 +441,7 @@ if (overlay && map) {
     areaScrollTop = 0;
     areaRenderedCount = 0;
     inPlaceView = false;
+    profileMode = false;
     renderFeed(areaPosts, "このエリアの投稿");
     overlay.hidden = false;
     document.body.classList.add("overlay-open");
@@ -428,15 +454,46 @@ if (overlay && map) {
       areaRenderedCount = renderedCount;
     }
     inPlaceView = true;
+    profileMode = false;
     renderFeed(getPlacePosts(placeId, placeName), `${placeName}の投稿`, true);
   }
 
   function returnToArea() {
+    if (profileMode) {
+      profileMode = false;
+      renderFeed(profileReturnPosts, profileReturnTitle, profileReturnCanGoBack);
+      feedScroll.scrollTop = profileReturnScrollTop;
+      return;
+    }
     if (!inPlaceView) return;
     inPlaceView = false;
     renderFeed(areaPosts, "このエリアの投稿");
     while (renderedCount < areaRenderedCount) appendNextPage();
     feedScroll.scrollTop = areaScrollTop;
+  }
+
+  function openProfile(author, avatar) {
+    profileReturnPosts = [...orderedPosts];
+    profileReturnTitle = feedTitle.textContent;
+    profileReturnCanGoBack = !feedBack.disabled;
+    profileReturnScrollTop = feedScroll.scrollTop;
+    profileMode = true;
+    const profilePosts = getProfilePosts(author);
+    feedTitle.textContent = `${author}のプロフィール`;
+    feedBack.disabled = false;
+    feedPosts.replaceChildren();
+    const summary = document.createElement("div");
+    summary.className = "profile-summary";
+    summary.innerHTML = `<span class="avatar">${avatar}</span><div><h2>${author}</h2><p>${profilePosts.length}件の投稿</p></div>`;
+    feedPosts.append(summary);
+    if (!profilePosts.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted";
+      empty.textContent = "このユーザーの投稿はまだありません。";
+      feedPosts.append(empty);
+      return;
+    }
+    profilePosts.forEach((post) => feedPosts.append(makeFeedPostElement(post)));
   }
 
   map.addEventListener("click", (event) => {
@@ -466,6 +523,11 @@ if (overlay && map) {
   feedPosts.addEventListener("click", (event) => {
     const button = event.target.closest("button");
     if (!button) return;
+    const profileAuthor = button.dataset.profileAuthor;
+    if (profileAuthor) {
+      openProfile(profileAuthor, button.dataset.profileAvatar || "🙂");
+      return;
+    }
     const item = button.closest(".feed-post");
     if (!item) return;
     const replyId = button.dataset.feedReplyId;

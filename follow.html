@@ -64,11 +64,16 @@
       row.className = 'user-row';
       const copy = document.createElement('div');
       copy.className = 'user-copy';
+      const profileUrl = `user-profile.html?author=${encodeURIComponent(user.author)}`;
       const name = document.createElement('strong');
       name.textContent = user.author;
+      const nameLink = document.createElement('a');
+      nameLink.className = 'user-name-link';
+      nameLink.href = profileUrl;
+      nameLink.append(name);
       const bio = document.createElement('span');
       bio.textContent = user.bio || '';
-      copy.append(name, bio);
+      copy.append(nameLink, bio);
 
       const button = document.createElement('button');
       button.type = 'button';
@@ -86,7 +91,11 @@
         saveFollowingList([...list]);
         render();
       });
-      row.append(createAvatar(user.avatar), copy, button);
+      const avatarLink = document.createElement('a');
+      avatarLink.className = 'user-profile-link';
+      avatarLink.href = profileUrl;
+      avatarLink.append(createAvatar(user.avatar));
+      row.append(avatarLink, copy, button);
       return row;
     }
 

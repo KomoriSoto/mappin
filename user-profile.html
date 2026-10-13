@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
+  <title>mappin - ユーザープロフィール</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="profile.css">
+  <script src="pwa.js" defer></script>
+  <script src="profile.js"></script>
+</head>
+<body data-page="account">
+  <div class="app">
+    <header class="app-header">
+      <div class="app-brand">
+        <img class="app-logo" src="logo.png" alt="">
+        <span class="app-brand-name">マッピン</span>
+      </div>
+    </header>
+    <main>
+      <div class="sub-header">
+        <a class="back-link" href="follow.html?tab=following">‹ 戻る</a>
+        <h1>プロフィール</h1>
+        <span></span>
+      </div>
+      <section class="profile-head" aria-label="ユーザープロフィール">
+        <span id="userAvatar" class="avatar profile-avatar" aria-hidden="true"></span>
+        <div>
+          <h2 id="userName" class="profile-name"></h2>
+          <p id="userBio" class="profile-bio"></p>
+        </div>
+      </section>
+      <div class="profile-stats">
+        <div class="profile-stat"><strong id="userPostCount">0</strong><span>投稿</span></div>
+        <div class="profile-stat"><strong>フォロー中</strong><span>アカウント</span></div>
+      </div>
+      <div class="profile-actions">
+        <a id="messageLink" class="button-link" href="dm.html">メッセージ</a>
+      </div>
+      <section aria-label="ユーザーの投稿">
+        <div id="userPosts" class="post-grid"></div>
+      </section>
+    </main>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="ai.html" aria-label="AIと相談"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
+      <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
+    </nav>
+    <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
+  </div>
+  <script>
+    const author = new URLSearchParams(location.search).get('author') || 'ユーザー';
+    const user = sampleFollowers.find((candidate) => candidate.author === author) || { author, avatar: findAvatar(author), bio: '' };
+    const posts = samplePosts.filter((post) => post.author === author);
+    const userAvatar = document.querySelector('#userAvatar');
+    userAvatar.textContent = user.avatar || '🙂';
+    document.querySelector('#userName').textContent = user.author;
+    document.querySelector('#userBio').textContent = user.bio || 'このユーザーのプロフィール';
+    document.querySelector('#userPostCount').textContent = posts.length;
+    document.querySelector('#messageLink').href = `dm.html?person=${encodeURIComponent(user.author)}&avatar=${encodeURIComponent(user.avatar || '🙂')}`;
+    const userPosts = document.querySelector('#userPosts');
+    if (!posts.length) {
+      userPosts.innerHTML = '<div class="empty-state">まだ投稿がありません。</div>';
+    } else {
+      posts.forEach((post) => {
+        const tile = document.createElement('article');
+        tile.className = `post-tile${post.photo ? '' : ' post-tile--text'}`;
+        if (post.photo) {
+          const photo = document.createElement('span');
+          photo.className = 'post-tile-photo';
+          photo.textContent = post.photo;
+          tile.append(photo);
+        } else {
+          const text = document.createElement('span');
+          text.className = 'post-tile-text';
+          text.textContent = post.text;
+          tile.append(text);
+        }
+        const place = document.createElement('span');
+        place.className = 'post-tile-pin';
+        place.textContent = post.locationName || '';
+        tile.append(place);
+        userPosts.append(tile);
+      });
+    }
+  </script>
+</body>
+</html>
