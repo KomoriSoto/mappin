@@ -24,9 +24,9 @@
     .search-chip { padding: 7px 11px; border: 1px solid #d7dce2; border-radius: 18px; color: #39434d; background: #fff; font-size: 12px; }
     .search-chip.is-selected { border-color: #3786e8; color: #fff; background: #3786e8; }
     .search-submit { width: 100%; min-height: 36px; margin-top: 11px; border: 0; border-radius: 18px; color: #fff; background: #222; font-size: 13px; font-weight: 700; }
-    .section-heading { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 10px; }
+    .section-heading { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
     .section-heading h1 { margin: 0; font-size: 20px; }
-    .section-heading span { color: #68717c; font-size: 12px; }
+    .section-heading span { margin-left: auto; color: #68717c; font-size: 12px; }
     .recommendation-list { display: grid; gap: 10px; }
     .recommendation-card { padding: 13px; border: 1px solid #e0e3e7; border-radius: 10px; background: #fff; }
     .recommendation-meta { display: flex; align-items: center; gap: 7px; color: #68717c; font-size: 11px; }
@@ -76,9 +76,11 @@
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
       <a href="inspect.html" aria-label="検査" aria-current="page"><span aria-hidden="true">⌕</span></a>
-      <a href="post.html" aria-label="投稿"><span aria-hidden="true">＋</span></a>
+      <a href="ai.html" aria-label="AIと相談"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
       <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
     </nav>
+    <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
   </div>
   <script>
     const searchInput = document.querySelector('#placeSearch');

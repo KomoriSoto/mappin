@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mappin - ログアウト完了</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .logout-page { display: grid; min-height: 100dvh; place-items: center; padding: 24px; }
+    .logout-message { width: 100%; padding: 28px 20px; border: 1px solid #b9d9c1; border-radius: 8px; color: #27723a; background: #f1fbf3; text-align: center; }
+    .logout-message strong { display: block; font-size: 20px; }
+    .logout-message p { margin: 10px 0 0; color: #4e7658; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="logout-page">
+      <div class="logout-message" role="status" aria-live="polite">
+        <strong>ログアウト完了</strong>
+        <p>ログイン画面へ移動します</p>
+      </div>
+    </main>
+  </div>
+  <script>
+    setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+  </script>
+</body>
+</html>

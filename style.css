@@ -289,7 +289,7 @@ nav {
   position: sticky;
   bottom: 0;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   height: calc(92px + env(safe-area-inset-bottom, 0px));
   min-height: calc(92px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -310,6 +310,10 @@ nav a {
 
 nav a[aria-current="page"] { color: #111; font-weight: 700; }
 nav span { display: block; font-size: 38px; line-height: 1; }
+.ai-tab-icon { display: grid; width: 29px; height: 29px; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-size: 17px; }
+.dm-tab-icon { display: grid; width: 30px; height: 25px; place-items: center; border: 2px solid currentColor; border-radius: 8px; font-size: 15px; line-height: 1; }
+.post-float-button { position: fixed; z-index: 6; right: max(18px, calc((100vw - 480px) / 2 + 18px)); bottom: 78px; display: grid; width: 52px; height: 52px; place-items: center; border-radius: 50%; color: #fff; background: #3786e8; box-shadow: 0 3px 10px #0003; font-size: 31px; line-height: 1; text-decoration: none; }
+.post-float-button:hover { background: #2868ae; }
 .notice { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }
 
 .post-overlay[hidden], .post-photo[hidden], .replying-to[hidden] { display: none; }
@@ -389,6 +393,21 @@ nav span { display: block; font-size: 38px; line-height: 1; }
 .feed-comment-meta time { margin-left: auto; flex: 0 0 auto; color: #888; font-size: 10px; }
 .feed-comment-body > p { margin: 3px 0 0; font-size: 12px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
 .feed-reply-button { margin-top: 3px; padding: 0; border: 0; background: transparent; color: #777; font-size: 11px; }
+.feed-comment-actions { display: inline-flex; gap: 8px; margin-left: 8px; }
+.feed-comment-actions button { padding: 0; border: 0; background: transparent; color: #777; font-size: 11px; }
+.feed-comment-actions button:hover { color: #2868ae; }
+.comment-action-modal { position: absolute; z-index: 4; inset: 0; display: grid; place-items: center; padding: 20px; background: #0006; }
+.comment-action-modal[hidden] { display: none; }
+.comment-action-dialog { width: min(100%, 340px); padding: 20px; border-radius: 12px; background: #fff; box-shadow: 0 8px 30px #0004; }
+.comment-action-dialog h2 { margin: 0; font-size: 17px; }
+.comment-action-dialog p { margin: 9px 0 0; color: #68717c; font-size: 13px; line-height: 1.5; }
+.comment-edit-input { width: 100%; min-height: 100px; margin-top: 14px; padding: 10px 12px; border: 1px solid #d2d6da; border-radius: 7px; resize: vertical; font: inherit; }
+.comment-edit-input:focus { border-color: #3786e8; outline: 0; box-shadow: 0 0 0 3px #3786e822; }
+.comment-action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.comment-action-buttons button { min-height: 40px; border-radius: 6px; font-weight: 700; }
+.comment-action-cancel { border: 1px solid #d2d6da; color: #39434d; background: #fff; }
+.comment-action-save { border: 1px solid #3786e8; color: #fff; background: #3786e8; }
+.comment-action-delete { border: 1px solid #d94b4b; color: #fff; background: #d94b4b; }
 .feed-replies { display: grid; gap: 8px; margin: 8px 0 0 8px; padding-left: 9px; border-left: 2px solid #eee; }
 .feed-replying { margin: 8px 0 0; color: #777; font-size: 11px; }
 .feed-replying[hidden] { display: none; }

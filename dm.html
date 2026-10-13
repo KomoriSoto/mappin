@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mappin - DM</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .dm-main { padding: 16px; }
+    .dm-heading { margin: 4px 0 16px; font-size: 22px; }
+    .dm-list { display: grid; gap: 8px; }
+    .dm-conversation { display: flex; align-items: center; gap: 11px; width: 100%; padding: 12px; border: 1px solid #e0e3e7; border-radius: 10px; background: #fff; text-align: left; }
+    .dm-avatar { display: grid; flex: 0 0 42px; width: 42px; height: 42px; place-items: center; border-radius: 50%; background: #eef4fb; font-size: 20px; }
+    .dm-copy { min-width: 0; flex: 1; }
+    .dm-copy strong, .dm-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .dm-copy span { margin-top: 4px; color: #68717c; font-size: 12px; }
+    .dm-time { align-self: flex-start; color: #8a929b; font-size: 10px; }
+    .dm-note { margin: 20px 0 0; color: #68717c; font-size: 12px; line-height: 1.5; }
+  </style>
+</head>
+<body data-page="dm">
+  <div class="app">
+    <header>mappin</header>
+    <main class="dm-main">
+      <h1 class="dm-heading">メッセージ</h1>
+      <div class="dm-list">
+        <button class="dm-conversation" type="button">
+          <span class="dm-avatar" aria-hidden="true">🌿</span>
+          <span class="dm-copy"><strong>さんぽ日和</strong><span>中央公園の花、見ごろですよ！</span></span>
+          <span class="dm-time">10:24</span>
+        </button>
+        <button class="dm-conversation" type="button">
+          <span class="dm-avatar" aria-hidden="true">🍟</span>
+          <span class="dm-copy"><strong>たべもの好き</strong><span>月見バーガーの情報ありがとう</span></span>
+          <span class="dm-time">昨日</span>
+        </button>
+      </div>
+      <p class="dm-note">ここでは、場所の情報やおすすめを友だちとやりとりできます。</p>
+    </main>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="ai.html" aria-label="AIと相談"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM" aria-current="page"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
+      <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
+    </nav>
+    <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
+  </div>
+</body>
+</html>

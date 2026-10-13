@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mappin - AIと相談</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .ai-main { padding: 14px 16px 24px; }
+    .ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-link { color: #2868ae; font-size: 14px; text-decoration: none; }
+    .ai-header h1 { margin: 0; font-size: 20px; }
+    .chat-intro { margin: 0 0 16px; color: #68717c; font-size: 13px; line-height: 1.5; }
+    .chat-message { max-width: 88%; margin-bottom: 12px; padding: 11px 13px; border-radius: 12px; font-size: 14px; line-height: 1.5; }
+    .chat-message--ai { border: 1px solid #e0e3e7; background: #f5f7f9; }
+    .chat-message--user { margin-left: auto; color: #fff; background: #3786e8; }
+    .question-form { display: flex; gap: 8px; margin-top: 18px; }
+    .question-input { flex: 1; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid #d2d6da; border-radius: 22px; outline: 0; }
+    .question-input:focus { border-color: #3786e8; box-shadow: 0 0 0 3px #3786e822; }
+    .question-submit { width: 62px; border: 0; border-radius: 22px; color: #fff; background: #222; font-weight: 700; }
+    .quick-questions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .quick-question { padding: 7px 10px; border: 1px solid #d7dce2; border-radius: 16px; color: #39434d; background: #fff; font-size: 11px; }
+    .answer { display: none; margin-top: 16px; }
+    .answer.visible { display: block; }
+    .answer h2 { margin: 0 0 8px; font-size: 16px; }
+    .place-card { overflow: hidden; border: 1px solid #d9e0e7; border-radius: 10px; background: #fff; }
+    .place-map { position: relative; height: 150px; border-bottom: 1px solid #d9e0e7; background-color: #e8efe5; background-image: linear-gradient(28deg, transparent 46%, #fff 47%, #fff 52%, transparent 53%), linear-gradient(110deg, transparent 43%, #d2dfcc 44%, #d2dfcc 49%, transparent 50%), linear-gradient(0deg, transparent 65%, #d2dfcc 66%, #d2dfcc 72%, transparent 73%); background-size: 150px 120px, 180px 140px, 100% 100%; cursor: pointer; }
+    .place-map::before { content: ""; position: absolute; left: 54%; top: 40%; width: 24px; height: 24px; border: 3px solid #fff; border-radius: 50% 50% 50% 0; background: #e94b42; box-shadow: 0 1px 4px #0005; transform: rotate(-45deg); }
+    .place-map::after { content: "地図をタップしてナビ開始"; position: absolute; right: 10px; bottom: 10px; padding: 5px 8px; border-radius: 5px; color: #fff; background: #222c; font-size: 11px; }
+    .place-info { padding: 12px; }
+    .place-info h3 { margin: 0; font-size: 16px; }
+    .place-info p { margin: 6px 0 0; color: #505b66; font-size: 13px; line-height: 1.5; }
+    .wait-time { color: #27723a; font-weight: 700; }
+    .navigation-status { display: none; margin-top: 10px; padding: 10px; border-radius: 6px; color: #27723a; background: #f1fbf3; font-size: 13px; font-weight: 700; }
+    .navigation-status.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="ai-main">
+      <div class="ai-header">
+        <a class="back-link" href="inspect.html">← 戻る</a>
+        <h1>AIと相談</h1>
+      </div>
+      <p class="chat-intro">今日の状況や過去の検索を参考に、今行きやすい場所を提案します。</p>
+      <div class="chat-message chat-message--ai">こんにちは。今日はどんな場所に行きたいですか？</div>
+      <div id="userMessage" class="chat-message chat-message--user" hidden></div>
+      <div id="answer" class="answer" aria-live="polite">
+        <h2>今日ならここがおすすめです</h2>
+        <article class="place-card">
+          <div id="placeMap" class="place-map" role="button" tabindex="0" aria-label="月見食堂の地図。タップしてナビを開始"></div>
+          <div class="place-info">
+            <h3>月見食堂 駅前店</h3>
+            <p>いつもは2時間待ちですが、今は<span class="wait-time">30分待ち</span>です。ランチにちょうどよさそうです。</p>
+          </div>
+        </article>
+        <div id="navigationStatus" class="navigation-status">ナビを開始しました。月見食堂 駅前店まで案内します。</div>
+      </div>
+      <form id="questionForm" class="question-form">
+        <input id="questionInput" class="question-input" type="text" placeholder="AIに質問する" autocomplete="off">
+        <button class="question-submit" type="submit">送信</button>
+      </form>
+      <div class="quick-questions">
+        <button class="quick-question" type="button">今日、ランチ行きたいけどおすすめは？</button>
+        <button class="quick-question" type="button">今すぐ行けるカフェは？</button>
+      </div>
+    </main>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="ai.html" aria-label="AIと相談" aria-current="page"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
+      <a href="account.html" aria-label="アカウント"><span aria-hidden="true">○</span></a>
+    </nav>
+    <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
+  </div>
+  <script>
+    const questionForm = document.querySelector('#questionForm');
+    const questionInput = document.querySelector('#questionInput');
+    const userMessage = document.querySelector('#userMessage');
+    const answer = document.querySelector('#answer');
+    const navigationStatus = document.querySelector('#navigationStatus');
+
+    function askQuestion(question) {
+      if (!question.trim()) return;
+      userMessage.textContent = question;
+      userMessage.hidden = false;
+      answer.classList.add('visible');
+      questionInput.value = '';
+    }
+
+    questionForm.addEventListener('submit', (event) => {
+      event.preventDefault();
+      askQuestion(questionInput.value);
+    });
+    document.querySelectorAll('.quick-question').forEach((button) => {
+      button.addEventListener('click', () => askQuestion(button.textContent));
+    });
+    document.querySelector('#placeMap').addEventListener('click', () => navigationStatus.classList.add('visible'));
+    document.querySelector('#placeMap').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') navigationStatus.classList.add('visible');
+    });
+  </script>
+</body>
+</html>

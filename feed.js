@@ -102,6 +102,20 @@ function createFeedComment(comment) {
   replyButton.dataset.feedReplyAuthor = comment.author;
   replyButton.textContent = "返信";
   body.append(meta, text, replyButton);
+  if (comment.author === "あなた") {
+    const actions = document.createElement("span");
+    actions.className = "feed-comment-actions";
+    const editButton = document.createElement("button");
+    editButton.type = "button";
+    editButton.dataset.feedEditId = comment.id;
+    editButton.textContent = "編集";
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.dataset.feedDeleteId = comment.id;
+    deleteButton.textContent = "削除";
+    actions.append(editButton, deleteButton);
+    replyButton.after(actions);
+  }
   if (comment.replies?.length) {
     const replies = document.createElement("div");
     replies.className = "feed-replies";
@@ -213,6 +227,60 @@ if (overlay && map) {
   let areaScrollTop = 0;
   let areaRenderedCount = 0;
   let inPlaceView = false;
+  let commentDialogAction = null;
+
+  const commentModal = document.createElement("div");
+  commentModal.className = "comment-action-modal";
+  commentModal.hidden = true;
+  commentModal.innerHTML = `
+    <div class="comment-action-dialog" role="dialog" aria-modal="true" aria-labelledby="comment-action-title">
+      <h2 id="comment-action-title"></h2>
+      <p id="comment-action-description"></p>
+      <textarea id="comment-edit-input" class="comment-edit-input" maxlength="280"></textarea>
+      <div class="comment-action-buttons">
+        <button id="comment-action-cancel" class="comment-action-cancel" type="button">キャンセル</button>
+        <button id="comment-action-confirm" type="button"></button>
+      </div>
+    </div>`;
+  overlay.querySelector(".post-feed-dialog").append(commentModal);
+  const commentModalTitle = commentModal.querySelector("#comment-action-title");
+  const commentModalDescription = commentModal.querySelector("#comment-action-description");
+  const commentEditInput = commentModal.querySelector("#comment-edit-input");
+  const commentModalConfirm = commentModal.querySelector("#comment-action-confirm");
+
+  function closeCommentModal() {
+    commentModal.hidden = true;
+    commentDialogAction = null;
+  }
+
+  function openCommentModal(action, comment) {
+    commentDialogAction = action;
+    commentModalTitle.textContent = action === "edit" ? "コメントを編集" : "コメントを削除";
+    commentModalDescription.textContent = action === "edit" ? "コメント内容を変更できます。" : "このコメントを削除しますか？削除すると元に戻せません。";
+    commentEditInput.hidden = action !== "edit";
+    commentEditInput.value = action === "edit" ? comment.text : "";
+    commentModalConfirm.textContent = action === "edit" ? "保存" : "削除する";
+    commentModalConfirm.className = action === "edit" ? "comment-action-save" : "comment-action-delete";
+    commentModal.hidden = false;
+    if (action === "edit") {
+      commentEditInput.focus();
+      commentEditInput.select();
+    } else commentModalConfirm.focus();
+  }
+
+  commentModal.querySelector("#comment-action-cancel").addEventListener("click", closeCommentModal);
+  commentModalConfirm.addEventListener("click", () => {
+    if (commentDialogAction === "edit" && !commentEditInput.value.trim()) return;
+    commentModal.dispatchEvent(new CustomEvent("comment-action-confirm", {
+      detail: { action: commentDialogAction, text: commentEditInput.value.trim() }
+    }));
+  });
+  commentModal.addEventListener("comment-action-confirm", (event) => {
+    const { action, text } = event.detail;
+    const target = commentModal._target;
+    closeCommentModal();
+    if (target) target(action, text);
+  });
 
   function postFromMapElement(element) {
     return {
@@ -333,6 +401,15 @@ if (overlay && map) {
     return null;
   }
 
+  function removeFeedComment(comments, targetId) {
+    const index = comments.findIndex((comment) => comment.id === targetId);
+    if (index >= 0) {
+      comments.splice(index, 1);
+      return true;
+    }
+    return comments.some((comment) => removeFeedComment(comment.replies || [], targetId));
+  }
+
   function openLocation(anchorElement) {
     const anchor = postFromMapElement(anchorElement);
     areaPosts = getLocationPosts(anchor);
@@ -400,6 +477,34 @@ if (overlay && map) {
       replying.textContent = `${button.dataset.feedReplyAuthor} に返信中`;
       replying.hidden = false;
       form.querySelector("input").focus();
+      return;
+    }
+    const editId = button.dataset.feedEditId;
+    const deleteId = button.dataset.feedDeleteId;
+    if (editId || deleteId) {
+      const commentId = editId || deleteId;
+      const engagement = readFeedEngagement();
+      const id = item.dataset.postId;
+      const state = engagement[id] || {};
+      const comments = state.comments || starterComments[item.dataset.sourceId] || [];
+      const comment = findFeedComment(comments, commentId);
+      if (!comment || comment.author !== "あなた") return;
+      commentModal._target = (action, text) => {
+        if (action === "edit") comment.text = text;
+        else removeFeedComment(comments, commentId);
+        state.comments = comments;
+        engagement[id] = state;
+        saveFeedEngagement(engagement);
+        const wasCommentsVisible = !item.querySelector(".feed-comments").hidden;
+        item.replaceWith(makeFeedPostElement({
+          ...orderedPosts.find((post) => post.id === item.dataset.sourceId),
+          id: item.dataset.postId,
+          sourceId: item.dataset.sourceId
+        }));
+        const updatedItem = feedPosts.querySelector(`[data-post-id="${CSS.escape(id)}"]`);
+        if (updatedItem && wasCommentsVisible) updatedItem.querySelector(".feed-comments").hidden = false;
+      };
+      openCommentModal(editId ? "edit" : "delete", comment);
       return;
     }
     const placeId = button.dataset.feedPlaceId;
