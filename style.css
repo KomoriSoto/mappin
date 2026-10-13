@@ -2,6 +2,7 @@
   font-family: Arial, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
   color: #222;
   background: #f5f5f5;
+  color-scheme: light;
   font-synthesis: none;
 }
 
@@ -21,15 +22,17 @@ button, a { cursor: pointer; }
 }
 
 body[data-page="home"] .app {
-  width: 100%;
-  max-width: none;
+  width: min(100%, 480px);
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
 }
 
 header {
+  position: relative;
+  flex: 0 0 56px;
   height: 56px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   padding: 0 18px;
@@ -38,30 +41,48 @@ header {
   font-weight: 700;
 }
 
-body[data-page="home"] .home-header {
+.app-header {
   position: relative;
   z-index: 4;
-  justify-content: center;
 }
 
-.home-logo {
+.app-header .app-brand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-logo {
   display: block;
-  width: min(130px, 40vw);
+  flex: 0 0 24px;
+  width: 24px;
+  max-width: 24px;
   height: auto;
 }
 
+.app-brand-name { font-size: 18px; font-weight: 700; }
+
 .notification-button {
-  position: relative;
   position: absolute;
+  top: 50%;
   right: 12px;
   width: 40px;
   height: 40px;
+  padding: 0;
   display: grid;
   place-items: center;
   border: 0;
   border-radius: 50%;
   background: transparent;
   color: #222;
+  transform: translateY(-50%);
 }
 
 .notification-button svg { width: 23px; height: 23px; }
@@ -83,6 +104,39 @@ body[data-page="home"] .home-header {
 
 .notification-panel p { margin: 12px 0 0; color: #555; }
 .notification-panel p span { margin-right: 6px; color: #e94b42; }
+.pwa-update-prompt {
+  position: fixed;
+  z-index: 30;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  left: 12px;
+  width: min(480px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 18px #0003;
+  font-size: 13px;
+}
+.pwa-update-prompt button {
+  flex: 0 0 auto;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: #222;
+  color: #fff;
+}
+.pwa-update-prompt .pwa-update-later {
+  padding-right: 0;
+  padding-left: 0;
+  background: transparent;
+  color: #666;
+}
 main { flex: 1; padding: 16px; }
 body[data-page="home"] main {
   position: relative;
@@ -506,4 +560,101 @@ nav span { display: block; font-size: 38px; line-height: 1; }
   .post-feed-list { padding: 8px; }
   .post-detail { width: 100%; height: 92dvh; border-radius: 14px 14px 0 0; }
   .post-photo { min-height: 180px; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root, body {
+    color: #eee;
+    background: #121212;
+    color-scheme: dark;
+  }
+
+  .app { background: #1c1c1e; }
+  header { border-color: #333; }
+  .notification-button { color: #eee; }
+  .notification-button:hover, .close-button { background: #333; }
+  .notification-panel {
+    border-color: #444;
+    background: #252527;
+    color: #eee;
+  }
+  .notification-panel p { color: #bbb; }
+  .pwa-update-prompt {
+    border-color: #444;
+    background: #252527;
+    color: #eee;
+  }
+  .pwa-update-prompt button { background: #eee; color: #222; }
+  .pwa-update-prompt .pwa-update-later { background: transparent; color: #bbb; }
+
+  .map-label {
+    color: #e0e5dc;
+    background: #252b24cc;
+  }
+  body[data-page="home"] .map {
+    background-image: url("bg2.png");
+  }
+  .comment-bubble {
+    border-color: #444;
+    background: #252527;
+    color: #eee;
+  }
+  .comment-bubble::after {
+    border-color: #444;
+    background: #252527;
+  }
+  .comment-avatar { background: #343b40; }
+
+  .secondary { border-color: #777; background: #292929; color: #eee; }
+  textarea, input, select {
+    border-color: #555;
+    background-color: #242424;
+    color: #eee;
+  }
+  textarea::placeholder, input::placeholder { color: #999; }
+  .location-row, .card { border-color: #444; }
+  .muted, .map-caption { color: #aaa; }
+
+  nav {
+    border-color: #444;
+    background: #1c1c1e;
+  }
+  nav a[aria-current="page"] { color: #eee; }
+
+  .post-feed-dialog { background: #1c1c1e; }
+  .post-feed-header {
+    border-color: #38383a;
+    background: #252527;
+  }
+  .post-feed-header small, .feed-post-identity > span,
+  .feed-post-identity .feed-place, .feed-post-time, .feed-comment-meta time {
+    color: #aaa;
+  }
+  .feed-back-button { color: #ccc; }
+  .feed-post {
+    border-color: #3a3a3c;
+    background: #252527;
+  }
+  .feed-post-identity .feed-place:hover { color: #eee; }
+  .feed-follow { border-color: #777; background: #252527; color: #eee; }
+  .feed-follow.is-following { background: #eee; color: #222; }
+  .feed-post-actions { border-color: #38383a; }
+  .feed-post-actions button, .feed-reply-button { color: #bbb; }
+  .feed-replies { border-color: #444; }
+  .feed-comment-form input { border-color: #555; }
+  .feed-comment-form button { background: #eee; color: #222; }
+
+  .post-detail { background: #1c1c1e; }
+  .post-author-row, .comment-composer {
+    border-color: #38383a;
+    background: #252527;
+  }
+  .follow-button { border-color: #777; background: #252527; color: #eee; }
+  .follow-button.is-following { background: #eee; color: #222; }
+  .post-actions { border-color: #38383a; }
+  .post-actions button, .reply-button { color: #bbb; }
+  .comment-replies { border-color: #444; }
+  .comment-composer input { border-color: #555; }
+  .comment-composer button { background: #eee; color: #222; }
+  .post-time, .comment-time, .replying-to { color: #aaa; }
 }
