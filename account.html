@@ -10,18 +10,8 @@
   <link rel="apple-touch-icon" href="app-icon-180.png">
   <link rel="stylesheet" href="style.css">
   <script src="pwa.js" defer></script>
-  <style>
-    .logout-button { width: 100%; min-height: 44px; margin-top: 8px; border: 1px solid #d94b4b; border-radius: 5px; color: #c43131; background: #fff; font-weight: 700; }
-    .logout-button:hover { background: #fff5f5; }
-    .confirm-overlay { position: fixed; z-index: 10; inset: 0; display: none; place-items: center; padding: 20px; background: #0006; }
-    .confirm-overlay.visible { display: grid; }
-    .confirm-dialog { width: min(100%, 340px); padding: 22px; border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #0003; text-align: center; }
-    .confirm-dialog h2 { margin: 0; font-size: 17px; }
-    .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
-    .confirm-actions button { min-height: 40px; border-radius: 5px; font-weight: 700; }
-    .confirm-no { border: 1px solid #ccc; color: #333; background: #fff; }
-    .confirm-yes { border: 1px solid #c43131; color: #fff; background: #c43131; }
-  </style>
+  <link rel="stylesheet" href="profile.css">
+  <script src="profile.js"></script>
 </head>
 <body data-page="account">
   <div class="app">
@@ -42,14 +32,68 @@
         <p><span>＋</span> 新しいおすすめ投稿があります</p>
       </div>
     </header>
-    <main>
-      <h1 class="page-title">アカウント</h1>
-      <div class="card"><strong>ゲストユーザー</strong><p class="muted">アカウント設定</p></div>
-      <div class="card">プロフィール</div>
-      <div class="card">通知設定</div>
-      <div class="card">ヘルプ</div>
-      <button id="logoutButton" class="logout-button" type="button">ログアウト</button>
+    <main class="ig-profile">
+      <!-- プロフィール（accounts テーブル） -->
+      <section class="ig-head" aria-label="プロフィール">
+        <div class="ig-avatar-wrap">
+          <span id="profileAvatar" class="avatar profile-avatar ig-avatar" aria-hidden="true">A</span>
+        </div>
+        <div class="ig-info">
+          <div class="ig-name-row">
+            <h1 id="profileName" class="ig-name">ゲストユーザー</h1>
+            <button id="settingsButton" class="ig-icon-button" type="button" aria-label="設定">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13.5a7.6 7.6 0 0 0 0-3l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-2.6-1.5L14 2.5h-4l-.4 2.5A7.4 7.4 0 0 0 7 6.5l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 3l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 2.6 1.5l.4 2.5h4l.4-2.5a7.4 7.4 0 0 0 2.6-1.5l2.4 1 2-3.4z"/></svg>
+            </button>
+          </div>
+          <div class="ig-stats">
+            <a href="#myPosts">投稿<strong id="postCount">0</strong>件</a>
+            <a href="follow.html?tab=followers">フォロワー<strong id="followerCount">0</strong>人</a>
+            <a href="follow.html?tab=following">フォロー中<strong id="followingCount">0</strong>人</a>
+          </div>
+        </div>
+      </section>
+      <p id="profileBio" class="ig-bio"></p>
+      <p id="profileEmail" class="profile-email"></p>
+
+      <div class="ig-actions">
+        <a class="button-link" name="btn_edit_profile" href="account_edit.html">プロフィールを編集</a>
+        <a class="button-link" href="favorites.html">お気に入りを表示</a>
+      </div>
+
+      <!-- タブ：投稿 / お気に入り / AI相談履歴 -->
+      <div class="ig-tabs" role="tablist" aria-label="アカウントの表示切り替え">
+        <button class="ig-tab" id="tabPosts" name="tab_posts" type="button" role="tab" aria-selected="true" aria-controls="myPosts" aria-label="投稿">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="8" rx="2"/><rect x="4" y="13" width="16" height="8" rx="2"/></svg>
+        </button>
+        <a class="ig-tab" name="tab_favorites" href="favorites.html" role="tab" aria-selected="false" aria-label="お気に入り">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-5-6 5z"/></svg>
+        </a>
+        <button class="ig-tab" id="tabAi" name="tab_ai_logs" type="button" role="tab" aria-selected="false" aria-controls="aiLogs" aria-label="AI相談履歴">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9zM18.5 15.5l.8 2.2 2.2.8-2.2.8-.8 2.2-.8-2.2-2.2-.8 2.2-.8z"/></svg>
+        </button>
+      </div>
+      <section id="myPosts" role="tabpanel" aria-labelledby="tabPosts">
+        <div id="postGrid" class="post-feed-list my-post-list"></div>
+      </section>
+      <section id="aiLogs" role="tabpanel" aria-labelledby="tabAi" hidden>
+        <div class="ig-empty">
+          <span class="ig-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg></span>
+          <h2>AIに相談してみよう</h2>
+          <p>相談した内容はここに表示されます。</p>
+          <a href="ai.html">AIに相談する</a>
+        </div>
+      </section>
     </main>
+    <!-- 設定メニュー（歯車ボタン） -->
+    <div id="settingsSheet" class="confirm-overlay ig-sheet-overlay" role="presentation">
+      <div class="ig-sheet" role="dialog" aria-modal="true" aria-label="設定">
+        <a href="account_edit.html">プロフィールを編集</a>
+        <a href="favorites.html">お気に入り</a>
+        <a href="follow.html?tab=following">フォロー・フォロワー</a>
+        <button id="logoutButton" class="ig-sheet-danger" type="button">ログアウト</button>
+        <button id="closeSettings" type="button">キャンセル</button>
+      </div>
+    </div>
     <div id="logoutConfirm" class="confirm-overlay" role="presentation">
       <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
         <h2 id="confirmTitle">本当にログアウトしますか？</h2>
@@ -59,6 +103,7 @@
         </div>
       </div>
     </div>
+    <div id="profileToast" class="profile-toast" role="status" aria-live="polite"></div>
     <nav aria-label="メインナビゲーション">
       <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
       <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
@@ -69,12 +114,113 @@
     <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
   </div>
   <script>
+    // プロフィールを表示
+    const profile = readProfile();
+    const profileAvatar = document.querySelector('#profileAvatar');
+    if (profile.icon) {
+      profileAvatar.replaceChildren(createAvatar(profile.icon, '').firstChild);
+    } else {
+      profileAvatar.textContent = [...profile.name][0] || 'A';
+    }
+    document.querySelector('#profileName').textContent = profile.name;
+    document.querySelector('#profileEmail').textContent = profile.email;
+    document.querySelector('#profileBio').textContent = profile.profileText;
+
+    // 自分の投稿をインスタのように3列で並べる
+    const myPosts = readMyPosts();
+    document.querySelector('#postCount').textContent = myPosts.length;
+    document.querySelector('#followingCount').textContent = readFollowingList().length;
+    document.querySelector('#followerCount').textContent = sampleFollowers.length;
+
+    // 自分の投稿を、マップの投稿カードと同じ形で新しい順に並べる
+    const postGrid = document.querySelector('#postGrid');
+    const engagement = readEngagementMap();
+    if (myPosts.length === 0) {
+      postGrid.outerHTML = '<div class="ig-empty"><span class="ig-empty-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg></span><h2>まだ投稿がありません</h2><p>投稿するとここに表示されます。</p><a href="post.html">最初の投稿をしてみよう</a></div>';
+    } else {
+      [...myPosts].sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0)).forEach((post) => {
+        const item = document.createElement('article');
+        item.className = 'feed-post';
+
+        const header = document.createElement('div');
+        header.className = 'feed-post-header';
+        const identity = document.createElement('div');
+        identity.className = 'feed-post-identity';
+        const author = document.createElement('strong');
+        author.textContent = profile.name;
+        const place = document.createElement('span');
+        place.textContent = post.locationEnabled ? (post.locationName || '現在地周辺') : '位置情報なし';
+        identity.append(author, place);
+        const edit = document.createElement('a');
+        edit.className = 'feed-follow my-post-edit';
+        edit.href = `post_edit.html?id=${encodeURIComponent(post.id)}`;
+        edit.textContent = '編集';
+        header.append(createAvatar(profile.icon || [...profile.name][0]), identity, edit);
+
+        const text = document.createElement('p');
+        text.className = 'feed-post-text';
+        text.textContent = post.text;
+        item.append(header, text);
+
+        if (post.photo) {
+          const photo = document.createElement('div');
+          photo.className = 'feed-post-photo';
+          photo.setAttribute('role', 'img');
+          photo.setAttribute('aria-label', '投稿写真');
+          if (post.photo.startsWith('data:')) {
+            const img = document.createElement('img');
+            img.src = post.photo;
+            img.alt = '';
+            photo.append(img);
+          } else {
+            photo.textContent = post.photo;
+          }
+          item.append(photo);
+        }
+
+        const state = engagement[post.id] || {};
+        const actions = document.createElement('div');
+        actions.className = 'feed-post-actions';
+        actions.style.borderBottom = '0';
+        actions.innerHTML = `
+          <button type="button" aria-label="コメント" disabled><span aria-hidden="true">▢</span><span>${(post.comments || []).length}</span></button>
+          <button type="button" aria-label="いいね" disabled><span aria-hidden="true">♡</span><span>${Number(post.likes || 0) + (state.liked ? 1 : 0)}</span></button>
+          <button type="button" aria-label="保存" class="${state.bookmarked ? 'is-active' : ''}" data-feed-action="bookmark" disabled><span aria-hidden="true">♧</span></button>
+          <time>${profileTime(post.createdAt)}${post.editedAt ? '（編集済み）' : ''}</time>`;
+        item.append(actions);
+        postGrid.append(item);
+      });
+    }
+
+    // タブ切り替え（お気に入りは別画面へ移動する）
+    const tabs = { tabPosts: document.querySelector('#myPosts'), tabAi: document.querySelector('#aiLogs') };
+    Object.keys(tabs).forEach((id) => {
+      document.querySelector(`#${id}`).addEventListener('click', () => {
+        Object.entries(tabs).forEach(([tabId, panel]) => {
+          const selected = tabId === id;
+          document.querySelector(`#${tabId}`).setAttribute('aria-selected', String(selected));
+          panel.hidden = !selected;
+        });
+      });
+    });
+
+    showPendingToast();
+
+    // ログアウト確認
     const logoutButton = document.querySelector('#logoutButton');
     const logoutConfirm = document.querySelector('#logoutConfirm');
     const cancelLogout = document.querySelector('#cancelLogout');
     const confirmLogout = document.querySelector('#confirmLogout');
 
+    const settingsSheet = document.querySelector('#settingsSheet');
+    document.querySelector('#settingsButton').addEventListener('click', () => settingsSheet.classList.add('visible'));
+    document.querySelector('#closeSettings').addEventListener('click', () => settingsSheet.classList.remove('visible'));
+    settingsSheet.addEventListener('click', (event) => {
+      if (event.target === settingsSheet) settingsSheet.classList.remove('visible');
+    });
+
     logoutButton.addEventListener('click', () => {
+      settingsSheet.classList.remove('visible');
       logoutConfirm.classList.add('visible');
       confirmLogout.focus();
     });
@@ -86,7 +232,6 @@
 
     confirmLogout.addEventListener('click', () => {
       logoutConfirm.classList.remove('visible');
-      logoutButton.disabled = true;
       logoutButton.textContent = 'ログアウトしています...';
       setTimeout(() => { window.location.href = 'logout.html'; }, 500);
     });

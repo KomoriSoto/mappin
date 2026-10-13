@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <title>mappin - 投稿を編集</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="app-icon-180.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="pwa.js" defer></script>
+  <link rel="stylesheet" href="profile.css">
+  <script src="profile.js"></script>
+</head>
+<body data-page="account">
+  <div class="app">
+    <header class="app-header">
+      <div class="app-brand">
+        <img class="app-logo" src="logo.png" alt="">
+        <span class="app-brand-name">マッピン</span>
+      </div>
+      <button class="notification-button" id="notification-button" type="button" aria-label="通知" aria-expanded="false">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+        </svg>
+        <span class="notification-dot" aria-hidden="true"></span>
+      </button>
+      <div class="notification-panel" id="notification-panel" hidden>
+        <strong>通知</strong>
+        <p><span>♡</span> あなたの投稿にいいねがありました</p>
+        <p><span>＋</span> 新しいおすすめ投稿があります</p>
+      </div>
+    </header>
+    <main>
+      <div class="sub-header">
+        <a class="back-link" href="account.html">‹ 戻る</a>
+        <h1>投稿を編集</h1>
+        <span></span>
+      </div>
+      <!-- 投稿（posts テーブル） -->
+      <form id="editForm" class="card" novalidate>
+        <div class="feed-post-header">
+          <span id="editAvatar" class="avatar" aria-hidden="true">🙂</span>
+          <div class="feed-post-identity"><strong id="editAuthor"></strong><span id="editTime"></span></div>
+        </div>
+        <div id="editPhoto" class="edit-photo" hidden></div>
+        <label class="field-label" for="editText">本文</label>
+        <textarea id="editText" name="post_text" maxlength="280" rows="5" required></textarea>
+        <p id="editCounter" class="edit-counter">0 / 280</p>
+        <div id="editLocation" class="edit-location" hidden></div>
+        <button id="saveButton" class="primary wide" type="submit">保存する</button>
+        <a class="secondary wide button-link" href="account.html">キャンセル</a>
+        <button id="deleteButton" class="delete-post-button" name="btn_delete_post" type="button">この投稿を削除</button>
+      </form>
+      <div id="notFound" class="empty-state" hidden>
+        <span class="empty-icon" aria-hidden="true">?</span>
+        投稿が見つかりませんでした
+        <br><a href="account.html">アカウントに戻る</a>
+      </div>
+    </main>
+    <!-- 投稿削除確認ダイアログ -->
+    <div id="deleteConfirm" class="confirm-overlay" role="presentation">
+      <div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+        <h2 id="deleteTitle">投稿を削除しますか？</h2>
+        <p>削除した投稿は元に戻せません。<br>コメントやお気に入りも消えます。</p>
+        <div class="confirm-actions">
+          <button id="cancelDelete" class="confirm-no" type="button">キャンセル</button>
+          <button id="confirmDelete" class="confirm-yes" type="button">削除する</button>
+        </div>
+      </div>
+    </div>
+    <div id="profileToast" class="profile-toast" role="status" aria-live="polite"></div>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="ai.html" aria-label="AIと相談"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
+      <a href="account.html" aria-label="アカウント" aria-current="page"><span aria-hidden="true">○</span></a>
+    </nav>
+  </div>
+  <script>
+    const postId = new URLSearchParams(location.search).get('id');
+    const posts = readMyPosts();
+    const post = posts.find((candidate) => candidate.id === postId);
+    const form = document.querySelector('#editForm');
+    const textInput = document.querySelector('#editText');
+    const counter = document.querySelector('#editCounter');
+    const saveButton = document.querySelector('#saveButton');
+
+    if (!post) {
+      form.hidden = true;
+      document.querySelector('#notFound').hidden = false;
+    } else {
+      const profile = readProfile();
+      document.querySelector('#editAvatar').replaceWith(createAvatar(profile.icon || [...profile.name][0]));
+      document.querySelector('#editAuthor').textContent = profile.name;
+      document.querySelector('#editTime').textContent = profileTime(post.createdAt) + (post.editedAt ? '（編集済み）' : '');
+      textInput.value = post.text;
+      if (post.photo) {
+        const photo = document.querySelector('#editPhoto');
+        photo.hidden = false;
+        if (post.photo.startsWith('data:')) {
+          const img = document.createElement('img');
+          img.src = post.photo;
+          img.alt = '投稿写真';
+          photo.append(img);
+        } else {
+          photo.textContent = post.photo;
+        }
+      }
+      if (post.locationEnabled) {
+        const place = document.querySelector('#editLocation');
+        place.hidden = false;
+        place.textContent = `📍 ${post.locationName || '現在地周辺'}`;
+      }
+    }
+
+    // 文字数チェック（1〜280文字）
+    function updateCounter() {
+      const length = [...textInput.value.trim()].length;
+      counter.textContent = `${[...textInput.value].length} / 280`;
+      counter.classList.toggle('error', length === 0 || [...textInput.value].length > 280);
+      saveButton.disabled = length === 0 || [...textInput.value].length > 280;
+    }
+    textInput.addEventListener('input', updateCounter);
+    updateCounter();
+
+    // 保存してアカウント画面に戻る
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (saveButton.disabled) return;
+      post.text = textInput.value.trim();
+      post.editedAt = Date.now();
+      saveMyPosts(posts);
+      goWithToast('account.html', '投稿を更新しました');
+    });
+
+    // 投稿削除（確認ダイアログを出してから消す）
+    const deleteConfirm = document.querySelector('#deleteConfirm');
+    document.querySelector('#deleteButton').addEventListener('click', () => {
+      deleteConfirm.classList.add('visible');
+      document.querySelector('#cancelDelete').focus();
+    });
+    document.querySelector('#cancelDelete').addEventListener('click', () => {
+      deleteConfirm.classList.remove('visible');
+    });
+    document.querySelector('#confirmDelete').addEventListener('click', () => {
+      saveMyPosts(posts.filter((candidate) => candidate.id !== postId));
+      const engagement = readEngagementMap();
+      delete engagement[postId];
+      saveEngagementMap(engagement);
+      goWithToast('account.html', '投稿を削除しました');
+    });
+  </script>
+</body>
+</html>

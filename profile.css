@@ -1,0 +1,149 @@
+/* プロフィール・投稿編集・お気に入り一覧・フォロー一覧の共通スタイル */
+.profile-head { display: flex; align-items: center; gap: 18px; }
+.profile-avatar { width: 84px; height: 84px; flex: 0 0 84px; overflow: hidden; border-radius: 50%; color: #fff; background: #3786e8; font-size: 34px; font-weight: 700; }
+.avatar-initial { color: #fff; background: #3786e8; font-size: 17px; font-weight: 700; }
+.profile-avatar img, .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.profile-stats { display: grid; flex: 1; grid-template-columns: repeat(3, 1fr); text-align: center; }
+.profile-stat { display: grid; gap: 2px; padding: 4px 0; border: 0; border-radius: 6px; color: inherit; background: transparent; text-decoration: none; }
+a.profile-stat:hover { background: #f2f2f2; }
+.profile-stat strong { font-size: 18px; }
+.profile-stat span { color: #666; font-size: 12px; }
+.profile-name { margin: 14px 0 0; font-size: 16px; }
+.profile-email { margin: 2px 0 0; color: #777; font-size: 12px; }
+.profile-bio { margin: 8px 0 0; font-size: 14px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.profile-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+.profile-actions a { min-height: 36px; border: 1px solid #ccc; border-radius: 8px; color: #222; background: #fff; font-size: 13px; font-weight: 700; }
+
+.profile-tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 18px -16px 0; border-top: 1px solid #e3e3e3; }
+.profile-tab { display: flex; justify-content: center; align-items: center; gap: 5px; min-height: 44px; border: 0; border-top: 2px solid transparent; margin-top: -1px; color: #888; background: transparent; font-size: 13px; text-decoration: none; }
+.profile-tab[aria-selected="true"] { border-top-color: #222; color: #222; font-weight: 700; }
+.profile-tab .tab-icon { font-size: 17px; }
+
+.post-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0 -16px; }
+.post-tile { position: relative; display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; padding: 8px; border: 0; color: #333; background: linear-gradient(145deg, #fff2c6, #f2cf87); text-decoration: none; }
+.post-tile--text { background: linear-gradient(145deg, #e8f1fc, #c9dcf5); }
+.post-tile-photo { font-size: 46px; line-height: 1; }
+.post-tile-photo img { width: 100%; height: 100%; object-fit: cover; }
+.post-tile-text { display: -webkit-box; overflow: hidden; font-size: 12px; line-height: 1.45; text-align: center; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow-wrap: anywhere; }
+.post-tile-pin { position: absolute; left: 6px; bottom: 5px; max-width: calc(100% - 12px); overflow: hidden; color: #333c; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.post-tile:hover { filter: brightness(.95); }
+
+.empty-state { padding: 40px 12px; color: #777; font-size: 14px; text-align: center; }
+.empty-state .empty-icon { display: grid; width: 64px; height: 64px; margin: 0 auto 12px; place-items: center; border: 2px solid currentColor; border-radius: 50%; font-size: 28px; }
+.empty-state a { display: inline-block; margin-top: 12px; color: #2868ae; font-weight: 700; }
+
+/* 一覧画面の上部（戻る + タイトル） */
+.sub-header { display: grid; grid-template-columns: 64px 1fr 64px; align-items: center; margin: -4px 0 12px; }
+.sub-header h1 { margin: 0; font-size: 17px; text-align: center; }
+.back-link { color: #2868ae; font-size: 14px; text-decoration: none; }
+
+/* フォロー・フォロワー */
+.follow-tabs { display: grid; grid-template-columns: 1fr 1fr; margin: 0 -16px 8px; border-bottom: 1px solid #e3e3e3; }
+.follow-tabs .profile-tab { border-top: 0; border-bottom: 2px solid transparent; margin: 0 0 -1px; }
+.follow-tabs .profile-tab[aria-selected="true"] { border-bottom-color: #222; }
+.user-list { display: grid; }
+.user-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #eee; }
+.user-row .avatar { width: 46px; height: 46px; }
+.user-copy { display: grid; min-width: 0; flex: 1; gap: 2px; }
+.user-copy strong { overflow: hidden; font-size: 14px; text-overflow: ellipsis; white-space: nowrap; }
+.user-copy span { overflow: hidden; color: #777; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 投稿編集 */
+.edit-photo { display: grid; min-height: 160px; margin-top: 12px; place-items: center; border-radius: 8px; background: linear-gradient(145deg, #fff2c6, #f2cf87); font-size: 70px; }
+.edit-photo img { width: 100%; max-height: 280px; object-fit: cover; border-radius: 8px; }
+.edit-location { display: flex; align-items: center; gap: 6px; width: fit-content; margin-top: 12px; padding: 6px 10px; border: 1px solid #c9ebdc; border-radius: 5px; color: #176b53; background: #f0fbf6; font-size: 12px; }
+.edit-counter { margin: 6px 0 0; color: #777; font-size: 12px; text-align: right; }
+.edit-counter.error { color: #c22; font-weight: 700; }
+.delete-post-button { width: 100%; min-height: 44px; margin-top: 24px; border: 1px solid #d94b4b; border-radius: 5px; color: #c43131; background: #fff; font-weight: 700; }
+.delete-post-button:hover { background: #fff5f5; }
+.primary:disabled { cursor: not-allowed; opacity: .45; }
+
+/* 確認ダイアログ（投稿削除・お気に入り解除） */
+.confirm-overlay { position: fixed; z-index: 10; inset: 0; display: none; place-items: center; padding: 20px; background: #0006; }
+.confirm-overlay.visible { display: grid; }
+.confirm-dialog { width: min(100%, 340px); padding: 22px; border-radius: 10px; background: #fff; box-shadow: 0 8px 30px #0003; text-align: center; }
+.confirm-dialog h2 { margin: 0; font-size: 17px; }
+.confirm-dialog p { margin: 9px 0 0; color: #68717c; font-size: 13px; line-height: 1.5; }
+.confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 20px; }
+.confirm-actions button { min-height: 40px; border-radius: 5px; font-weight: 700; }
+.confirm-no { border: 1px solid #ccc; color: #333; background: #fff; }
+.confirm-yes { border: 1px solid #c43131; color: #fff; background: #c43131; }
+
+.profile-toast { position: fixed; z-index: 12; left: 50%; bottom: 84px; padding: 10px 16px; border-radius: 20px; color: #fff; background: #222e; font-size: 13px; opacity: 0; pointer-events: none; transform: translate(-50%, 8px); transition: opacity .2s, transform .2s; }
+.profile-toast.visible { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-color-scheme: dark) {
+  .profile-stat span, .profile-email, .profile-tab, .empty-state, .user-copy span, .edit-counter { color: #aaa; }
+  a.profile-stat:hover { background: #2a2a2c; }
+  .profile-actions a { border-color: #555; color: #eee; background: #292929; }
+  .profile-tabs, .follow-tabs, .user-row { border-color: #38383a; }
+  .profile-tab[aria-selected="true"] { border-color: #eee; color: #eee; }
+  .follow-tabs .profile-tab[aria-selected="true"] { border-bottom-color: #eee; }
+  .post-tile { color: #222; }
+  .back-link, .empty-state a { color: #6fb0f5; }
+  .edit-location { border-color: #285643; color: #a4dbc3; background: #152820; }
+  .delete-post-button { background: #292929; color: #ff8a8a; border-color: #a33; }
+  .confirm-dialog { background: #252527; color: #eee; }
+  .confirm-dialog p { color: #aaa; }
+  .confirm-no { border-color: #555; color: #eee; background: #292929; }
+  .profile-toast { background: #eeee; color: #222; }
+}
+
+/* アカウント画面（インスタ風） */
+.ig-profile { padding-top: 22px; }
+.ig-head { display: flex; align-items: center; gap: 20px; }
+.ig-avatar-wrap { flex: 0 0 auto; }
+.ig-avatar { width: 88px; height: 88px; font-size: 34px; }
+.ig-info { min-width: 0; flex: 1; }
+.ig-name-row { display: flex; align-items: center; gap: 8px; }
+.ig-name { min-width: 0; margin: 0; overflow: hidden; font-size: 19px; text-overflow: ellipsis; white-space: nowrap; }
+.ig-icon-button { display: grid; width: 32px; height: 32px; flex: 0 0 32px; place-items: center; padding: 0; border: 0; border-radius: 50%; color: inherit; background: transparent; }
+.ig-icon-button:hover { background: #f2f2f2; }
+.ig-icon-button svg, .ig-tab svg, .ig-empty-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.ig-stats { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 10px; font-size: 13px; }
+.ig-stats a { color: inherit; text-decoration: none; }
+.ig-stats a:hover { text-decoration: underline; }
+.ig-stats strong { margin: 0 1px; }
+.ig-bio { margin: 14px 0 0; font-size: 14px; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ig-bio:empty { display: none; }
+.ig-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.ig-actions a { min-height: 36px; border-radius: 8px; color: #222; background: #efefef; font-size: 13px; font-weight: 700; }
+.ig-actions a:hover { background: #e2e2e2; }
+.ig-tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin: 20px -16px 0; border-bottom: 1px solid #e3e3e3; }
+.ig-tab { display: grid; min-height: 46px; place-items: center; margin-bottom: -1px; padding: 0; border: 0; border-bottom: 2px solid transparent; color: #999; background: transparent; }
+.ig-tab[aria-selected="true"] { border-bottom-color: #222; color: #222; }
+.ig-profile .post-grid { margin-top: 2px; }
+.ig-empty { padding: 44px 12px; text-align: center; }
+.ig-empty-icon { display: grid; width: 64px; height: 64px; margin: 0 auto; place-items: center; border: 2px solid currentColor; border-radius: 50%; }
+.ig-empty-icon svg { width: 30px; height: 30px; }
+.ig-empty h2 { margin: 16px 0 0; font-size: 22px; }
+.ig-empty p { margin: 8px 0 0; color: #777; font-size: 13px; }
+.ig-empty a { display: inline-block; margin-top: 14px; color: #3786e8; font-size: 13px; font-weight: 700; text-decoration: none; }
+.ig-sheet-overlay { align-items: end; padding: 0; }
+.ig-sheet { display: grid; width: min(100%, 480px); padding: 8px 0 calc(8px + env(safe-area-inset-bottom)); border-radius: 14px 14px 0 0; background: #fff; }
+.ig-sheet a, .ig-sheet button { min-height: 50px; display: flex; align-items: center; justify-content: center; border: 0; border-bottom: 1px solid #eee; color: #222; background: transparent; font-size: 15px; text-decoration: none; }
+.ig-sheet button:last-child { border-bottom: 0; color: #777; }
+.ig-sheet .ig-sheet-danger { color: #c43131; font-weight: 700; }
+
+@media (prefers-color-scheme: dark) {
+  .ig-icon-button:hover { background: #2a2a2c; }
+  .ig-actions a { color: #eee; background: #2c2c2e; }
+  .ig-actions a:hover { background: #3a3a3c; }
+  .ig-tabs { border-color: #38383a; }
+  .ig-tab { color: #777; }
+  .ig-tab[aria-selected="true"] { border-bottom-color: #eee; color: #eee; }
+  .ig-empty p { color: #aaa; }
+  .ig-empty a { color: #6fb0f5; }
+  .ig-sheet { background: #252527; }
+  .ig-sheet a, .ig-sheet button { border-color: #38383a; color: #eee; }
+  .ig-sheet .ig-sheet-danger { color: #ff8a8a; }
+}
+
+/* プロフィールの投稿一覧（マップの投稿カードと同じ形） */
+.my-post-list { padding: 12px 0 0; }
+.my-post-edit { color: #222; text-decoration: none; }
+.feed-post-actions button:disabled { cursor: default; }
+.feed-post-photo img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 8px; }
+@media (prefers-color-scheme: dark) {
+  .my-post-edit { color: #eee; }
+}

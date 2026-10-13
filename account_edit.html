@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mappin - プロフィール編集</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* post.html と同じ見た目の部品（style.css は変更しない） */
+    .profile-row { display: flex; gap: 12px; align-items: center; }
+    .avatar { display: grid; flex: 0 0 64px; width: 64px; height: 64px; place-items: center; overflow: hidden; border-radius: 50%; color: #fff; background: #3786e8; font-size: 24px; font-weight: 700; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .tool-button { display: inline-flex; align-items: center; min-height: 38px; padding: 0 12px; border: 0; border-radius: 5px; color: #2868ae; background: #f1f7ff; font-size: 13px; cursor: pointer; }
+    .tool-button input { display: none; }
+    .text-input { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid #ccc; border-radius: 5px; font: inherit; }
+    .counter { margin: 4px 0 0; color: #777; font-size: 12px; text-align: right; }
+    .counter.warning { color: #b66a00; }
+    .danger { border-color: #c22; color: #c22; }
+    .toast { min-height: 20px; margin: 10px 0 0; color: #38804a; font-size: 13px; }
+  </style>
+</head>
+<body data-page="account">
+  <div class="app">
+    <header>mappin</header>
+    <main>
+      <h1 class="page-title">プロフィール編集</h1>
+
+      <form class="card" id="profileForm" aria-label="プロフィール編集フォーム">
+        <!-- アイコン（accounts.icon） -->
+        <div class="profile-row">
+          <div class="avatar" id="avatar" aria-hidden="true">A</div>
+          <label class="tool-button">
+            ▧ 画像を選ぶ
+            <input id="iconInput" name="icon" type="file" accept="image/*">
+          </label>
+        </div>
+
+        <!-- 氏名（accounts.name / varchar 20 / 必須） -->
+        <label class="field-label" for="name">氏名</label>
+        <input class="text-input" id="name" name="name" type="text" maxlength="20" required>
+        <p class="muted">必須。20文字以内</p>
+
+        <!-- プロフィール文（accounts.profile_text / text 300） -->
+        <label class="field-label" for="profileText">プロフィール文</label>
+        <textarea id="profileText" name="profile_text" maxlength="300" placeholder="好きな場所やよく出かけるエリアなど"></textarea>
+        <p class="counter" id="counter">0 / 300</p>
+
+        <!-- メールアドレス（accounts.email / varchar 100 / 必須） -->
+        <label class="field-label" for="email">メールアドレス</label>
+        <input class="text-input" id="email" name="email" type="email" maxlength="100" required>
+        <p class="muted">必須。100文字以内</p>
+
+        <button class="primary wide" type="submit">保存する</button>
+        <a class="secondary wide button-link" href="account.html">キャンセル</a>
+        <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="card">
+        <a class="secondary wide button-link" href="#" style="margin-top: 0">パスワードを変更</a>
+        <a class="secondary wide button-link" href="#">ログアウト</a>
+        <a class="secondary wide button-link danger" href="#">アカウントを削除</a>
+      </div>
+    </main>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="post.html" aria-label="投稿"><span aria-hidden="true">＋</span></a>
+      <a href="account.html" aria-label="アカウント" aria-current="page"><span aria-hidden="true">○</span></a>
+    </nav>
+  </div>
+
+  <script>
+    const profileKey = 'mappin-profile';
+    const form = document.querySelector('#profileForm');
+    const nameInput = document.querySelector('#name');
+    const emailInput = document.querySelector('#email');
+    const textInput = document.querySelector('#profileText');
+    const counter = document.querySelector('#counter');
+    const avatar = document.querySelector('#avatar');
+    let icon = '';
+
+    function showIcon(src) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      avatar.replaceChildren(img);
+    }
+
+    function updateCounter() {
+      const length = [...textInput.value].length;
+      counter.textContent = `${length} / 300`;
+      counter.className = `counter${length > 270 ? ' warning' : ''}`;
+    }
+
+    // 保存済みの内容を入力欄に入れる
+    const saved = JSON.parse(localStorage.getItem(profileKey) || 'null');
+    if (saved) {
+      nameInput.value = saved.name || '';
+      emailInput.value = saved.email || '';
+      textInput.value = saved.profile_text || '';
+      if (saved.icon) { icon = saved.icon; showIcon(icon); }
+    }
+    updateCounter();
+    textInput.addEventListener('input', updateCounter);
+
+    // 選んだアイコン画像をその場で表示
+    document.querySelector('#iconInput').addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { icon = reader.result; showIcon(icon); };
+      reader.readAsDataURL(file);
+    });
+
+    // 保存してアカウント画面に戻る
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      localStorage.setItem(profileKey, JSON.stringify({
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        profile_text: textInput.value,
+        icon
+      }));
+      document.querySelector('#toast').textContent = '保存しました';
+      setTimeout(() => { window.location.href = 'account.html'; }, 600);
+    });
+  </script>
+</body>
+</html>

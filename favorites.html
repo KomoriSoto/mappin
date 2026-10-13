@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+  <title>mappin - お気に入り</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="app-icon-180.png">
+  <link rel="stylesheet" href="style.css">
+  <script src="pwa.js" defer></script>
+  <link rel="stylesheet" href="profile.css">
+  <script src="profile.js"></script>
+</head>
+<body data-page="account">
+  <div class="app">
+    <header class="app-header">
+      <div class="app-brand">
+        <img class="app-logo" src="logo.png" alt="">
+        <span class="app-brand-name">マッピン</span>
+      </div>
+      <button class="notification-button" id="notification-button" type="button" aria-label="通知" aria-expanded="false">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+        </svg>
+        <span class="notification-dot" aria-hidden="true"></span>
+      </button>
+      <div class="notification-panel" id="notification-panel" hidden>
+        <strong>通知</strong>
+        <p><span>♡</span> あなたの投稿にいいねがありました</p>
+        <p><span>＋</span> 新しいおすすめ投稿があります</p>
+      </div>
+    </header>
+    <main>
+      <div class="sub-header">
+        <a class="back-link" href="account.html">‹ 戻る</a>
+        <h1>お気に入り</h1>
+        <span></span>
+      </div>
+      <p id="favoriteCount" class="muted"></p>
+      <!-- お気に入り（favorites テーブル） -->
+      <div id="favoriteList" class="post-feed-list" style="padding: 0"></div>
+    </main>
+    <div id="profileToast" class="profile-toast" role="status" aria-live="polite"></div>
+    <nav aria-label="メインナビゲーション">
+      <a href="index.html" aria-label="ホーム"><span aria-hidden="true">⌂</span></a>
+      <a href="inspect.html" aria-label="検査"><span aria-hidden="true">⌕</span></a>
+      <a href="ai.html" aria-label="AIと相談"><span class="ai-tab-icon" aria-hidden="true">✦</span></a>
+      <a href="dm.html" aria-label="DM"><span class="dm-tab-icon" aria-hidden="true">✉</span></a>
+      <a href="account.html" aria-label="アカウント" aria-current="page"><span aria-hidden="true">○</span></a>
+    </nav>
+    <a class="post-float-button" href="post.html" aria-label="投稿を作成">＋</a>
+  </div>
+  <script>
+    const favoriteList = document.querySelector('#favoriteList');
+
+    function readFavorites() {
+      const engagement = readEngagementMap();
+      return Object.keys(engagement)
+        .filter((id) => engagement[id] && engagement[id].bookmarked)
+        .map((id) => findAnyPost(id))
+        .filter(Boolean)
+        .sort((a, b) => Number(b.createdAt || 0) - Number(a.createdAt || 0));
+    }
+
+    function renderFavorites() {
+      const favorites = readFavorites();
+      document.querySelector('#favoriteCount').textContent = favorites.length ? `${favorites.length}件の保存済み投稿` : '';
+      favoriteList.replaceChildren();
+      if (favorites.length === 0) {
+        favoriteList.innerHTML = '<div class="empty-state"><span class="empty-icon" aria-hidden="true">♧</span>まだお気に入りはありません<br>投稿の ♧ を押すとここに保存されます<br><a href="index.html">マップで投稿を探す</a></div>';
+        return;
+      }
+      const engagement = readEngagementMap();
+      favorites.forEach((post) => {
+        const item = document.createElement('article');
+        item.className = 'feed-post';
+
+        const header = document.createElement('div');
+        header.className = 'feed-post-header';
+        const identity = document.createElement('div');
+        identity.className = 'feed-post-identity';
+        const author = document.createElement('strong');
+        author.textContent = post.author || 'あなた';
+        const place = document.createElement('span');
+        place.textContent = post.locationName || '現在地周辺';
+        identity.append(author, place);
+        header.append(createAvatar(post.avatar), identity);
+
+        const text = document.createElement('p');
+        text.className = 'feed-post-text';
+        text.textContent = post.text;
+        item.append(header, text);
+
+        if (post.photo) {
+          const photo = document.createElement('div');
+          photo.className = 'feed-post-photo';
+          photo.setAttribute('role', 'img');
+          photo.setAttribute('aria-label', '投稿写真');
+          photo.textContent = post.photo.startsWith('data:') ? '' : post.photo;
+          item.append(photo);
+        }
+
+        const liked = Boolean(engagement[post.id] && engagement[post.id].liked);
+        const actions = document.createElement('div');
+        actions.className = 'feed-post-actions';
+        actions.style.borderBottom = '0';
+        actions.innerHTML = `
+          <button type="button" aria-label="いいね" class="${liked ? 'is-active' : ''}" disabled><span aria-hidden="true">♡</span><span>${Number(post.likes || 0) + (liked ? 1 : 0)}</span></button>
+          <button type="button" data-feed-action="bookmark" class="is-active" aria-pressed="true" aria-label="お気に入りから外す"><span aria-hidden="true">♧</span><span>保存済み</span></button>
+          <time>${profileTime(post.createdAt)}</time>`;
+        actions.querySelector('[data-feed-action="bookmark"]').addEventListener('click', () => {
+          const current = readEngagementMap();
+          current[post.id] = { ...(current[post.id] || {}), bookmarked: false };
+          saveEngagementMap(current);
+          renderFavorites();
+          showProfileToast('お気に入りから外しました');
+        });
+        item.append(actions);
+        favoriteList.append(item);
+      });
+    }
+
+    renderFavorites();
+  </script>
+</body>
+</html>

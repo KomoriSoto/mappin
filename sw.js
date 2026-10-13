@@ -1,10 +1,15 @@
-const CACHE_NAME = "mappin-shell-v6";
+const CACHE_NAME = "mappin-shell-v7";
 const APP_FILES = [
   "./",
   "./index.html",
   "./inspect.html",
   "./post.html",
   "./account.html",
+  "./post_edit.html",
+  "./favorites.html",
+  "./follow.html",
+  "./profile.css",
+  "./profile.js",
   "./style.css",
   "./app.js",
   "./feed.js",
